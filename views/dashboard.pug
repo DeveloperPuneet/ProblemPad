@@ -1,0 +1,1217 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Dashboard - ProblemPad
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    style.
+      :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --secondary: #10b981;
+        --dark: #0f172a;
+        --darker: #020617;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --gray-dark: #334155;
+        --sidebar-width: 250px;
+        --header-height: 70px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--darker);
+        color: var(--light);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Header */
+      .dashboard-header {
+        background-color: rgba(2, 6, 23, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--gray-dark);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        height: var(--header-height);
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: var(--header-height);
+      }
+
+      .logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--light);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo i {
+        color: var(--primary);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1.5rem;
+        margin-left: 2rem;
+      }
+
+      .nav-links a {
+        color: var(--light);
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        transition: background 0.3s;
+      }
+
+      .nav-links a:hover, .nav-links a.active {
+        background: var(--primary);
+      }
+
+      .user-menu {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: var(--light);
+      }
+
+      .user-details .user-name {
+        font-weight: 600;
+      }
+
+      .user-details .user-role {
+        font-size: 0.85rem;
+        color: var(--gray);
+        text-transform: capitalize;
+      }
+
+      /* Notification Styles */
+      .notification-container {
+        position: relative;
+      }
+
+      .notification-bell {
+        position: relative;
+        background: none;
+        border: none;
+        color: var(--light);
+        font-size: 1.25rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: background 0.3s;
+      }
+
+      .notification-bell:hover {
+        background: var(--gray-dark);
+      }
+
+      .notification-count {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: #ef4444;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+      }
+
+      .notification-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 8px;
+        width: 400px;
+        max-height: 500px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1001;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      }
+
+      .notification-dropdown.active {
+        display: block;
+      }
+
+      .notification-header {
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-dark);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .notification-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+      }
+
+      .notification-list {
+        max-height: 350px;
+        overflow-y: auto;
+      }
+
+      .notification-item {
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-dark);
+        display: flex;
+        gap: 0.75rem;
+        transition: background 0.3s;
+      }
+
+      .notification-item:hover {
+        background: var(--gray-dark);
+      }
+
+      .notification-item.unread {
+        background: rgba(99, 102, 241, 0.1);
+      }
+
+      .notification-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+      }
+
+      .notification-content {
+        flex: 1;
+      }
+
+      .notification-message {
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+      }
+
+      .notification-time {
+        font-size: 0.8rem;
+        color: var(--gray);
+        margin-bottom: 0.5rem;
+      }
+
+      .notification-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .notification-footer {
+        padding: 1rem;
+        border-top: 1px solid var(--gray-dark);
+        text-align: center;
+      }
+
+      .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+      }
+
+      .logout-btn {
+        background: var(--gray-dark);
+        color: var(--light);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logout-btn:hover {
+        background: var(--primary);
+      }
+
+      /* Main Layout */
+      .dashboard-main {
+        flex: 1;
+        margin-top: var(--header-height);
+        min-height: calc(100vh - var(--header-height));
+      }
+
+      .dashboard-content {
+        padding: 2rem 0;
+      }
+
+      /* Welcome Section */
+      .welcome-section {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .welcome-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -20%;
+        width: 300px;
+        height: 300px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .welcome-content h1 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .welcome-content p {
+        opacity: 0.9;
+        max-width: 600px;
+      }
+
+      /* Quick Actions */
+      .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .action-card {
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 8px;
+        padding: 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .action-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .action-icon {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+      }
+
+      /* Communities Section */
+      .communities-section {
+        margin-bottom: 3rem;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+      }
+
+      .create-community-btn {
+        background: var(--primary);
+        color: var(--light);
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: background 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .create-community-btn:hover {
+        background: var(--primary-dark);
+      }
+
+      .communities-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .community-card {
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 12px;
+        padding: 1.5rem;
+        transition: all 0.3s;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .community-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .community-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: var(--primary);
+      }
+
+      .community-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+      }
+
+      .community-icon {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-right: 1rem;
+        flex-shrink: 0;
+        color: var(--light);
+      }
+
+      .community-info {
+        flex: 1;
+      }
+
+      .community-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+      }
+
+      .community-desc {
+        color: var(--gray);
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .community-stats {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.85rem;
+        color: var(--gray);
+      }
+
+      .community-role {
+        background: var(--primary);
+        color: var(--light);
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .community-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .action-btn {
+        flex: 1;
+        padding: 0.5rem;
+        border: 1px solid var(--gray-dark);
+        background: transparent;
+        color: var(--light);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 0.85rem;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+      }
+
+      .action-btn:hover {
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.1);
+      }
+
+      .enter-community {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
+
+      .enter-community:hover {
+        background: var(--primary-dark);
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: 3rem;
+        background: var(--dark);
+        border: 2px dashed var(--gray-dark);
+        border-radius: 12px;
+        grid-column: 1 / -1;
+      }
+
+      .empty-icon {
+        font-size: 3rem;
+        color: var(--gray);
+        margin-bottom: 1rem;
+      }
+
+      .empty-state h3 {
+        margin-bottom: 0.5rem;
+        color: var(--light);
+      }
+
+      .empty-state p {
+        color: var(--gray);
+        margin-bottom: 1.5rem;
+      }
+
+      /* Create Community Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 12px;
+        width: 90%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--gray-dark);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+
+      .close-modal {
+        background: none;
+        border: none;
+        color: var(--gray);
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: color 0.3s;
+      }
+
+      .close-modal:hover {
+        color: var(--light);
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--gray-dark);
+        border-radius: 8px;
+        background: var(--darker);
+        color: var(--light);
+        font-size: 1rem;
+      }
+
+      .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+      }
+
+      .modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid var(--gray-dark);
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        font-size: 1rem;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: var(--light);
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+      }
+
+      .btn-outline {
+        background: transparent;
+        border: 1px solid var(--gray-dark);
+        color: var(--light);
+      }
+
+      .btn-outline:hover {
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.1);
+      }
+
+      /* Footer */
+      footer {
+        background-color: var(--darker);
+        border-top: 1px solid var(--gray-dark);
+        padding: 4rem 0 2rem;
+        margin-top: auto;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 3rem;
+        margin-bottom: 3rem;
+      }
+
+      .footer-column h3 {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        color: var(--light);
+      }
+
+      .footer-links {
+        list-style: none;
+      }
+
+      .footer-links li {
+        margin-bottom: 0.8rem;
+      }
+
+      .footer-links a {
+        color: var(--gray);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .footer-links a:hover {
+        color: var(--primary);
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--gray-dark);
+        color: var(--light);
+        text-decoration: none;
+        transition: background 0.3s;
+      }
+
+      .social-links a:hover {
+        background: var(--primary);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid var(--gray-dark);
+        color: var(--gray);
+        font-size: 0.9rem;
+      }
+
+      /* Responsive Styles */
+      @media (max-width: 768px) {
+        .header-content {
+          flex-direction: column;
+          height: auto;
+          padding: 1rem 0;
+        }
+
+        .nav-links {
+          margin: 1rem 0;
+        }
+
+        .user-menu {
+          margin-top: 1rem;
+        }
+
+        .welcome-content h1 {
+          font-size: 1.5rem;
+        }
+
+        .quick-actions {
+          grid-template-columns: 1fr;
+        }
+
+        .communities-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .section-header {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: flex-start;
+        }
+
+        .notification-dropdown {
+          width: 300px;
+          right: -50px;
+        }
+
+        .footer-content {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .social-links {
+          justify-content: center;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .dashboard-content {
+          padding: 1rem 0;
+        }
+
+        .welcome-section {
+          padding: 1.5rem;
+        }
+
+        .community-header {
+          flex-direction: column;
+        }
+
+        .community-icon {
+          margin-bottom: 1rem;
+        }
+
+        .community-stats {
+          flex-wrap: wrap;
+        }
+
+        .modal-content {
+          width: 95%;
+          margin: 1rem;
+        }
+      }
+
+  body
+    // Header
+    header.dashboard-header
+      .container
+        .header-content
+          a.logo(href="/dashboard")
+            i.fas.fa-tools
+            | ProblemPad
+          .nav-links
+            a.active(href="/dashboard") Dashboard
+            a(href="/discover") Discover
+            a(href="/profile") Profile
+          .user-menu
+            // Notifications
+            .notification-container
+              button.notification-bell#notificationBell
+                i.fas.fa-bell
+                span.notification-count#notificationCount 0
+              .notification-dropdown#notificationDropdown
+                .notification-header
+                  h3 Notifications
+                  button.btn.btn-outline.btn-sm#markAllRead Mark All Read
+                .notification-list#notificationList
+                  .notification-item
+                    .notification-message Loading notifications...
+
+            .user-info
+              .user-avatar= user.Name.charAt(0).toUpperCase()
+              .user-details
+                .user-name= user.Name
+                .user-role= user.role
+            a.logout-btn(href="/logout")
+              i.fas.fa-sign-out-alt
+              |  Logout
+
+    // Main Content
+    main.dashboard-main
+      .container
+        .dashboard-content
+          // Welcome Section
+          section.welcome-section
+            .welcome-content
+              h1 Welcome back, #{user.Name}! 👋
+              p Manage your communities, track issues, and connect with service professionals.
+
+          // Quick Actions
+          section.quick-actions
+            .action-card#createCommunityAction
+              .action-icon
+                i.fas.fa-plus-circle
+              h3 Create Community
+              p Start a new community for problem resolution
+            .action-card
+              .action-icon
+                i.fas.fa-search
+              h3 Find Communities
+              p Discover existing communities to join
+            .action-card
+              .action-icon
+                i.fas.fa-cog
+              h3 Settings
+              p Manage your account preferences
+
+          // Your Communities Section
+          section.communities-section
+            .section-header
+              .section-title Your Communities
+              button.create-community-btn#createCommunityBtn
+                i.fas.fa-plus
+                | Create Community
+
+            .communities-grid
+              if yourCommunities && yourCommunities.length > 0
+                each community in yourCommunities
+                  .community-card
+                    .community-header
+                      .community-icon
+                        i.fas.fa-users
+                      .community-info
+                        .community-name= community.Name
+                        .community-desc= community.Description
+                        .community-stats
+                          span #{community.memberCount} Members
+                          span #{community.activeIssueCount} Active Issues
+                      .community-role= community.userRole
+                    .community-actions
+                      a.action-btn.enter-community(href=`/com/${community.gp_id}`)
+                        i.fas.fa-door-open
+                        | Enter
+                      a.action-btn(href=`/com/${community.gp_id}`)
+                        i.fas.fa-cog
+                        | Manage
+              else
+                .empty-state
+                  .empty-icon
+                    i.fas.fa-users
+                  h3 No Communities Created Yet
+                  p You haven't created any communities. Start by creating your first community!
+                  button.create-community-btn
+                    i.fas.fa-plus
+                    | Create Your First Community
+
+          // Communities You Use Section
+          section.communities-section
+            .section-header
+              .section-title Communities You Use
+
+            .communities-grid
+              if communitiesYouUse && communitiesYouUse.length > 0
+                each community in communitiesYouUse
+                  .community-card
+                    .community-header
+                      .community-icon
+                        i.fas.fa-users
+                      .community-info
+                        .community-name= community.Name
+                        .community-desc= community.Description
+                        .community-stats
+                          span #{community.memberCount} Members
+                          span #{community.activeIssueCount} Active Issues
+                      .community-role= community.userRole
+                    .community-actions
+                      a.action-btn.enter-community(href=`/com/${community.gp_id}`)
+                        i.fas.fa-door-open
+                        | Enter
+                      a.action-btn(href=`/com/${community.gp_id}`)
+                        i.fas.fa-user-plus
+                        | Invite
+              else
+                .empty-state
+                  .empty-icon
+                    i.fas.fa-users
+                  h3 No Joined Communities
+                  p You haven't joined any communities yet. Explore and join communities to start solving problems!
+                  a.create-community-btn(href="/discover")
+                    i.fas.fa-search
+                    | Find Communities
+
+    // Create Community Modal
+    .modal#createCommunityModal
+      .modal-content
+        .modal-header
+          .modal-title Create New Community
+          button.close-modal#closeModal
+            i.fas.fa-times
+        form#communityForm(action="/create-community", method="POST")
+          .modal-body
+            .form-group
+              label(for="communityName") Community Name
+              input(type="text", id="communityName", name="name", placeholder="Enter community name", required)
+            .form-group
+              label(for="communityDescription") Description
+              textarea(id="communityDescription", name="description", placeholder="Describe what your community is about...", required)
+            .form-group
+              label(for="communityCategory") Category
+              select(id="communityCategory", name="category", required)
+                option(value="") Select a category
+                option(value="technical") Technical Services
+                option(value="electrical") Electrical Services
+                option(value="plumbing") Plumbing
+                option(value="carpentry") Carpentry
+                option(value="cleaning") Cleaning
+                option(value="other") Other
+            .form-group
+              label Community Visibility
+              .visibility-options(style="display: flex; gap: 1rem; margin-top: 0.5rem;")
+                label(style="display: flex; align-items: center; gap: 0.5rem;")
+                  input(type="radio", name="visibility", value="public", checked, style="margin: 0;")
+                  | Public - Anyone can discover and join
+                label(style="display: flex; align-items: center; gap: 0.5rem;")
+                  input(type="radio", name="visibility", value="private", style="margin: 0;")
+                  | Private - Invitation only
+          .modal-footer
+            button.btn.btn-outline(type="button", id="cancelCreate") Cancel
+            button.btn.btn-primary(type="submit") Create Community
+
+    // Footer
+    footer
+      .container
+        .footer-content
+          .footer-column
+            h3 ProblemPad
+            p A platform connecting service professionals with users to resolve complaints efficiently.
+            .social-links
+              a(href="https://github.com/DeveloperPuneet", target="_blank")
+                i.fab.fa-github
+          .footer-column
+            h3 Quick Links
+            ul.footer-links
+              li
+                a(href="/") Home
+              li
+                a(href="/about") About Us
+              li
+                a(href="/contact") Contact
+              li
+                a(href="/term-and-conditions") Terms & Conditions
+          .footer-column
+            h3 Account
+            ul.footer-links
+              li
+                a(href="/login") Login
+              li
+                a(href="/create-account") Create Account
+              li
+                a(href="/forgot-pin") Forgot Password
+          .footer-column
+            h3 Contact Info
+            ul.footer-links
+              li
+                i.fas.fa-envelope
+                |  developerpuneet2010@gmail.com
+              li
+                i.fas.fa-map-marker-alt
+                |  Punjab, India
+        .footer-bottom
+          p &copy; 2025 ProblemPad. All rights reserved. | Designed with ❤️ for better problem solving
+
+    script.
+      // Notification System
+      let notifications = [];
+
+      async function loadNotifications() {
+        try {
+          const response = await fetch('/notifications');
+          notifications = await response.json();
+          updateNotificationUI();
+        } catch (error) {
+          console.error('Failed to load notifications:', error);
+        }
+      }
+
+      function updateNotificationUI() {
+        const notificationCount = document.getElementById('notificationCount');
+        const notificationList = document.getElementById('notificationList');
+        const unreadCount = notifications.filter(n => !n.read).length;
+
+        // Update notification count
+        notificationCount.textContent = unreadCount;
+        notificationCount.style.display = unreadCount > 0 ? 'flex' : 'none';
+
+        // Update notification list
+        if (notifications.length === 0) {
+          notificationList.innerHTML = '<div class="notification-item"><div class="notification-message">No notifications</div></div>';
+        } else {
+          notificationList.innerHTML = notifications.slice(0, 5).map(notification => `
+            <div class="notification-item ${notification.read ? '' : 'unread'}" data-id="${notification.id}">
+              <div class="notification-icon">
+                ${getNotificationIcon(notification.type)}
+              </div>
+              <div class="notification-content">
+                <div class="notification-message">${notification.message}</div>
+                <div class="notification-time">${formatTime(notification.timestamp)}</div>
+                <div class="notification-actions">
+                  ${!notification.read ? `<button class="btn btn-sm btn-outline mark-read" onclick="markNotificationRead('${notification.id}')">Mark Read</button>` : ''}
+                  ${notification.type === 'invitation' ? `<button class="btn btn-sm btn-primary" onclick="acceptInvitation('${notification.communityId}')">Accept</button>` : ''}
+                  ${notification.type === 'new_problem' && notification.communityId ? `<a href="/com/${notification.communityId}" class="btn btn-sm btn-outline">View</a>` : ''}
+                  ${notification.type === 'problem_solved' && notification.communityId ? `<a href="/com/${notification.communityId}" class="btn btn-sm btn-outline">Check Solution</a>` : ''}
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      function getNotificationIcon(type) {
+        const icons = {
+          'new_problem': '<i class="fas fa-exclamation-circle text-warning"></i>',
+          'problem_solved': '<i class="fas fa-check-circle text-success"></i>',
+          'solution_confirmed': '<i class="fas fa-thumbs-up text-info"></i>',
+          'invitation': '<i class="fas fa-user-plus text-primary"></i>',
+          'new_member': '<i class="fas fa-users text-info"></i>',
+          'general': '<i class="fas fa-bell text-gray"></i>'
+        };
+        return icons[type] || icons.general;
+      }
+
+      function formatTime(timestamp) {
+        const now = new Date();
+        const time = new Date(timestamp);
+        const diff = now - time;
+        
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+        
+        if (minutes < 1) return 'Just now';
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        if (days < 7) return `${days}d ago`;
+        
+        return time.toLocaleDateString();
+      }
+
+      async function markNotificationRead(notificationId) {
+        try {
+          await fetch('/mark-notification-read', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ notificationId })
+          });
+          await loadNotifications();
+        } catch (error) {
+          console.error('Failed to mark notification as read:', error);
+        }
+      }
+
+      async function markAllNotificationsRead() {
+        try {
+          await fetch('/mark-all-notifications-read', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+          await loadNotifications();
+        } catch (error) {
+          console.error('Failed to mark all notifications as read:', error);
+        }
+      }
+
+      async function acceptInvitation(communityId) {
+        try {
+          const response = await fetch(`/accept-invitation/${communityId}`, { method: 'POST' });
+          if (response.ok) {
+            await loadNotifications();
+            window.location.href = `/com/${communityId}`;
+          } else {
+            alert('Failed to accept invitation');
+          }
+        } catch (error) {
+          console.error('Failed to accept invitation:', error);
+          alert('Failed to accept invitation');
+        }
+      }
+
+      // Notification dropdown toggle
+      document.getElementById('notificationBell').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const dropdown = document.getElementById('notificationDropdown');
+        dropdown.classList.toggle('active');
+        if (dropdown.classList.contains('active')) {
+          loadNotifications();
+        }
+      });
+
+      document.getElementById('markAllRead').addEventListener('click', markAllNotificationsRead);
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function() {
+        document.getElementById('notificationDropdown').classList.remove('active');
+      });
+
+      // Modal functionality
+      const createCommunityBtn = document.getElementById('createCommunityBtn');
+      const createCommunityAction = document.getElementById('createCommunityAction');
+      const createCommunityModal = document.getElementById('createCommunityModal');
+      const closeModal = document.getElementById('closeModal');
+      const cancelCreate = document.getElementById('cancelCreate');
+      const communityForm = document.getElementById('communityForm');
+
+      // Open modal
+      function openCommunityModal() {
+        createCommunityModal.classList.add('active');
+      }
+
+      createCommunityBtn.addEventListener('click', openCommunityModal);
+      createCommunityAction.addEventListener('click', openCommunityModal);
+
+      // Close modal
+      function closeCommunityModal() {
+        createCommunityModal.classList.remove('active');
+      }
+
+      closeModal.addEventListener('click', closeCommunityModal);
+      cancelCreate.addEventListener('click', closeCommunityModal);
+
+      // Close modal when clicking outside
+      createCommunityModal.addEventListener('click', (e) => {
+        if (e.target === createCommunityModal) {
+          closeCommunityModal();
+        }
+      });
+
+      // Form submission
+      communityForm.addEventListener('submit', (e) => {
+        // Form will be submitted to the server normally
+      });
+
+      // Quick actions
+      document.querySelectorAll('.action-card').forEach(card => {
+        card.addEventListener('click', function() {
+          const action = this.querySelector('h3').textContent;
+          
+          switch(action) {
+            case 'Create Community':
+              openCommunityModal();
+              break;
+            case 'Find Communities':
+              window.location.href = '/discover';
+              break;
+            case 'Settings':
+              window.location.href = '/profile';
+              break;
+          }
+        });
+      });
+
+      // Auto-refresh notifications every 30 seconds
+      setInterval(loadNotifications, 30000);
+
+      // Load notifications on page load
+      document.addEventListener('DOMContentLoaded', loadNotifications);

@@ -1,0 +1,690 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title Terms & Policies - ProblemPad
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    style.
+      :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --secondary: #10b981;
+        --dark: #0f172a;
+        --darker: #020617;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --gray-dark: #334155;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--darker);
+        color: var(--light);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Header */
+      .dashboard-header {
+        background-color: rgba(2, 6, 23, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--gray-dark);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        height: 70px;
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px;
+      }
+
+      .logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--light);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo i {
+        color: var(--primary);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .nav-links a {
+        color: var(--light);
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        transition: background 0.3s;
+      }
+
+      .nav-links a:hover, .nav-links a.active {
+        background: var(--primary);
+      }
+
+      /* Main Content */
+      .terms-main {
+        flex: 1;
+        margin-top: 70px;
+        padding: 3rem 0;
+      }
+
+      .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+
+      .page-header h1 {
+        font-size: 2.8rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .page-header p {
+        color: var(--gray);
+        font-size: 1.1rem;
+        max-width: 700px;
+        margin: 0 auto;
+      }
+
+      /* Last Updated */
+      .last-updated {
+        text-align: center;
+        color: var(--gray);
+        margin-bottom: 2rem;
+        font-style: italic;
+      }
+
+      /* Table of Contents */
+      .toc-container {
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 3rem;
+      }
+
+      .toc-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--light);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .toc-title i {
+        color: var(--primary);
+      }
+
+      .toc-links {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+      }
+
+      .toc-link {
+        color: var(--primary);
+        text-decoration: none;
+        padding: 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: color 0.3s;
+      }
+
+      .toc-link:hover {
+        color: var(--light);
+      }
+
+      .toc-link i {
+        font-size: 0.8rem;
+      }
+
+      /* Content Sections */
+      .content-section {
+        margin-bottom: 3rem;
+      }
+
+      .section-card {
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 12px;
+        padding: 2.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        margin-bottom: 1.5rem;
+        color: var(--light);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid var(--gray-dark);
+      }
+
+      .section-title i {
+        color: var(--primary);
+      }
+
+      .section-content h3 {
+        font-size: 1.3rem;
+        margin: 1.5rem 0 1rem;
+        color: var(--light);
+      }
+
+      .section-content p {
+        margin-bottom: 1rem;
+        color: var(--gray);
+      }
+
+      .section-content ul, .section-content ol {
+        margin: 1rem 0 1rem 1.5rem;
+        color: var(--gray);
+      }
+
+      .section-content li {
+        margin-bottom: 0.5rem;
+      }
+
+      .highlight {
+        background: rgba(99, 102, 241, 0.1);
+        border-left: 4px solid var(--primary);
+        padding: 1rem 1.5rem;
+        margin: 1.5rem 0;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .policy-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+      }
+
+      .policy-item {
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid var(--gray-dark);
+        border-radius: 8px;
+        padding: 1.5rem;
+      }
+
+      .policy-item h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
+        color: var(--light);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .policy-item h4 i {
+        color: var(--primary);
+      }
+
+      .policy-item p {
+        font-size: 0.9rem;
+        margin-bottom: 0;
+      }
+
+      /* Contact Section */
+      .contact-section {
+        text-align: center;
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 12px;
+        padding: 3rem 2rem;
+        margin-top: 2rem;
+      }
+
+      .contact-section h2 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: var(--light);
+      }
+
+      .contact-section p {
+        color: var(--gray);
+        margin-bottom: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        font-size: 1rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: var(--light);
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+      }
+
+      /* Footer */
+      footer {
+        background-color: var(--darker);
+        border-top: 1px solid var(--gray-dark);
+        padding: 4rem 0 2rem;
+        margin-top: auto;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 3rem;
+        margin-bottom: 3rem;
+      }
+
+      .footer-column h3 {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        color: var(--light);
+      }
+
+      .footer-links {
+        list-style: none;
+      }
+
+      .footer-links li {
+        margin-bottom: 0.8rem;
+      }
+
+      .footer-links a {
+        color: var(--gray);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .footer-links a:hover {
+        color: var(--primary);
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--gray-dark);
+        color: var(--light);
+        text-decoration: none;
+        transition: background 0.3s;
+      }
+
+      .social-links a:hover {
+        background: var(--primary);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid var(--gray-dark);
+        color: var(--gray);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 768px) {
+        .nav-links {
+          display: none;
+        }
+        
+        .section-card {
+          padding: 1.5rem;
+        }
+        
+        .toc-links {
+          grid-template-columns: 1fr;
+        }
+      }
+
+  body
+    // Header
+    header.dashboard-header
+      .container
+        .header-content
+          a.logo(href="/dashboard")
+            i.fas.fa-tools
+            | ProblemPad
+          .nav-links
+            a(href="/dashboard") Dashboard
+            a(href="/discover") Discover
+            a(href="/profile") Profile
+            a.active(href="/term-and-conditions") Terms
+
+    // Main Content
+    main.terms-main
+      .container
+        // Page Header
+        .page-header
+          h1 Terms & Policies
+          p Please read these terms and policies carefully before using our platform. By using ProblemPad, you agree to be bound by these terms.
+
+        // Last Updated
+        .last-updated
+          p Last updated: November 30, 2025
+
+        // Table of Contents
+        .toc-container
+          .toc-title
+            i.fas.fa-list
+            | Table of Contents
+          .toc-links
+            a.toc-link(href="#terms-of-service")
+              i.fas.fa-chevron-right
+              | Terms of Service
+            a.toc-link(href="#privacy-policy")
+              i.fas.fa-chevron-right
+              | Privacy Policy
+            a.toc-link(href="#user-responsibilities")
+              i.fas.fa-chevron-right
+              | User Responsibilities
+            a.toc-link(href="#worker-responsibilities")
+              i.fas.fa-chevron-right
+              | Service Worker Guidelines
+            a.toc-link(href="#dispute-resolution")
+              i.fas.fa-chevron-right
+              | Dispute Resolution
+            a.toc-link(href="#content-policy")
+              i.fas.fa-chevron-right
+              | Content Policy
+            a.toc-link(href="#payment-terms")
+              i.fas.fa-chevron-right
+              | Payment Terms
+            a.toc-link(href="#account-termination")
+              i.fas.fa-chevron-right
+              | Account Termination
+
+        // Terms of Service
+        .content-section#terms-of-service
+          .section-card
+            .section-title
+              i.fas.fa-file-contract
+              | Terms of Service
+            .section-content
+              p By accessing and using ProblemPad, you accept and agree to be bound by the terms and provision of this agreement.
+              
+              h3 Eligibility
+              p You must be at least 18 years old to use ProblemPad. By using this platform, you represent and warrant that you meet this age requirement.
+              
+              h3 Account Registration
+              p To access certain features, you must register for an account. You agree to provide accurate, current, and complete information during registration.
+              
+              .highlight
+                p You are responsible for safeguarding your account credentials and for any activities or actions under your account. ProblemPad cannot and will not be liable for any loss or damage from your failure to comply with this security obligation.
+              
+              h3 Platform Usage
+              p ProblemPad provides a platform connecting users with service workers. We are not a party to any agreements between users and workers, nor are we responsible for the quality, safety, or legality of services provided.
+
+        // Privacy Policy
+        .content-section#privacy-policy
+          .section-card
+            .section-title
+              i.fas.fa-shield-alt
+              | Privacy Policy
+            .section-content
+              p Your privacy is important to us. This policy explains what information we collect and how we use it.
+              
+              .policy-grid
+                .policy-item
+                  h4
+                    i.fas.fa-user
+                    | Information We Collect
+                  p We collect information you provide during registration, profile creation, and platform usage, including personal details, contact information, and service-related data.
+                
+                .policy-item
+                  h4
+                    i.fas.fa-database
+                    | How We Use Information
+                  p We use your information to operate the platform, facilitate connections between users and workers, improve our services, and communicate with you.
+                
+                .policy-item
+                  h4
+                    i.fas.fa-share-alt
+                    | Information Sharing
+                  p We do not sell your personal information. We may share limited information necessary to facilitate service connections between users and workers.
+                
+                .policy-item
+                  h4
+                    i.fas.fa-cookie
+                    | Cookies & Tracking
+                  p We use cookies and similar technologies to enhance your experience, analyze platform usage, and personalize content.
+              
+              h3 Data Security
+              p We implement appropriate security measures to protect your personal information. However, no method of transmission over the Internet is 100% secure.
+
+        // User Responsibilities
+        .content-section#user-responsibilities
+          .section-card
+            .section-title
+              i.fas.fa-users
+              | User Responsibilities
+            .section-content
+              h3 Accurate Information
+              p Users must provide accurate and complete information when reporting issues and communicating with service workers.
+              
+              h3 Respectful Communication
+              p Users must maintain respectful and professional communication with all platform participants, including service workers and other users.
+              
+              h3 Issue Description
+              p When reporting an issue, provide clear, detailed descriptions to help service workers understand the problem and propose appropriate solutions.
+              
+              h3 Payment Obligations
+              p Users are responsible for paying agreed-upon fees for services rendered through the platform, according to the payment terms agreed with service workers.
+
+        // Service Worker Guidelines
+        .content-section#worker-responsibilities
+          .section-card
+            .section-title
+              i.fas.fa-tools
+              | Service Worker Guidelines
+            .section-content
+              h3 Professional Conduct
+              p Service workers must maintain professional conduct, provide accurate information about qualifications and experience, and deliver services as promised.
+              
+              h3 Quality of Service
+              p Service workers are expected to provide high-quality services that meet or exceed reasonable expectations and comply with applicable laws and regulations.
+              
+              h3 Timely Communication
+              p Service workers should respond to service requests and user communications in a timely manner and provide realistic timelines for service completion.
+              
+              h3 Pricing Transparency
+              p Service workers must provide clear, transparent pricing information and honor quoted prices unless changes are mutually agreed upon with the user.
+
+        // Dispute Resolution
+        .content-section#dispute-resolution
+          .section-card
+            .section-title
+              i.fas.fa-gavel
+              | Dispute Resolution
+            .section-content
+              p ProblemPad provides tools to help resolve disputes between users and service workers.
+              
+              h3 Communication First
+              p We encourage users and workers to resolve issues through direct communication before escalating disputes.
+              
+              h3 Platform Mediation
+              p If direct communication fails, either party can request platform mediation. ProblemPad will attempt to facilitate a resolution but does not guarantee specific outcomes.
+              
+              h3 Limitations
+              p ProblemPad's role in disputes is limited to mediation. We are not responsible for the actions or inactions of users or service workers.
+              
+              .highlight
+                p ProblemPad reserves the right to suspend or terminate accounts involved in repeated disputes or found to be violating platform policies.
+
+        // Content Policy
+        .content-section#content-policy
+          .section-card
+            .section-title
+              i.fas.fa-file-alt
+              | Content Policy
+            .section-content
+              h3 Prohibited Content
+              p Users may not post content that is illegal, harmful, threatening, abusive, harassing, defamatory, or otherwise objectionable.
+              
+              h3 Intellectual Property
+              p Users retain rights to their content but grant ProblemPad a license to use, display, and distribute that content in connection with platform operations.
+              
+              h3 Reviews and Ratings
+              p Reviews and ratings must be truthful and based on actual experiences. Fake, misleading, or malicious reviews are prohibited.
+              
+              h3 Content Moderation
+              p ProblemPad reserves the right to remove any content that violates these policies or is otherwise deemed inappropriate.
+
+        // Payment Terms
+        .content-section#payment-terms
+          .section-card
+            .section-title
+              i.fas.fa-credit-card
+              | Payment Terms
+            .section-content
+              h3 Service Agreements
+              p Users and service workers are responsible for agreeing on payment terms, including amounts, methods, and timing of payments.
+              
+              h3 Disputes
+              p Payment disputes should be resolved directly between users and workers. ProblemPad may provide mediation but is not responsible for payment issues.
+              
+              h3 Platform Fees
+              p ProblemPad may charge platform fees for certain services. Any such fees will be clearly disclosed before use of those services.
+
+        // Account Termination
+        .content-section#account-termination
+          .section-card
+            .section-title
+              i.fas.fa-user-slash
+              | Account Termination
+            .section-content
+              h3 Voluntary Termination
+              p You may delete your account at any time through your account settings. Certain information may be retained as required by law or for legitimate business purposes.
+              
+              h3 Termination by ProblemPad
+              p We may suspend or terminate your account if you violate these terms, engage in fraudulent or illegal activities, or create harm or risk to other users or the platform.
+              
+              h3 Effect of Termination
+              p Upon termination, your right to use the platform will immediately cease. Certain provisions of these terms will survive termination.
+
+        // Contact Section
+        .contact-section
+          h2 Questions About Our Terms?
+          p If you have any questions about these terms and policies, please contact us.
+          a.btn.btn-primary(href="/contact")
+            i.fas.fa-envelope
+            | Contact Support
+
+    // Footer
+    footer
+      .container
+        .footer-content
+          .footer-column
+            h3 ProblemPad
+            p A platform connecting service professionals with users to resolve complaints efficiently.
+            .social-links
+              a(href="https://github.com/DeveloperPuneet", target="_blank")
+                i.fab.fa-github
+          .footer-column
+            h3 Quick Links
+            ul.footer-links
+              li
+                a(href="/") Home
+              li
+                a(href="/about") About Us
+              li
+                a(href="/contact") Contact
+              li
+                a(href="/term-and-conditions") Terms & Conditions
+          .footer-column
+            h3 Account
+            ul.footer-links
+              li
+                a(href="/login") Login
+              li
+                a(href="/create-account") Create Account
+              li
+                a(href="/forgot-pin") Forgot Password
+          .footer-column
+            h3 Contact Info
+            ul.footer-links
+              li
+                i.fas.fa-envelope
+                |  developerpuneet2010@gmail.com
+              li
+                i.fas.fa-map-marker-alt
+                |  Punjab, India
+        .footer-bottom
+          p &copy; 2025 ProblemPad. All rights reserved. | Designed with ❤️ for better problem solving
+
+    script.
+      // Smooth scrolling for table of contents links
+      document.addEventListener('DOMContentLoaded', function() {
+        const tocLinks = document.querySelectorAll('.toc-link');
+        
+        tocLinks.forEach(link => {
+          link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            
+            if (targetElement) {
+              const offsetTop = targetElement.offsetTop - 100;
+              window.scrollTo({
+                top: offsetTop,
+                behavior: 'smooth'
+              });
+            }
+          });
+        });
+      });

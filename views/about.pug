@@ -1,0 +1,534 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title About ProblemPad - Connecting Communities to Solve Problems
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    style.
+      :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --secondary: #10b981;
+        --dark: #0f172a;
+        --darker: #020617;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --gray-dark: #334155;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--darker);
+        color: var(--light);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Header */
+      .dashboard-header {
+        background-color: rgba(2, 6, 23, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--gray-dark);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        height: 70px;
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px;
+      }
+
+      .logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--light);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo i {
+        color: var(--primary);
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 1.5rem;
+      }
+
+      .nav-links a {
+        color: var(--light);
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        transition: background 0.3s;
+      }
+
+      .nav-links a:hover, .nav-links a.active {
+        background: var(--primary);
+      }
+
+      /* Main Content */
+      .about-main {
+        flex: 1;
+        margin-top: 70px;
+        padding: 4rem 0;
+      }
+
+      .page-header {
+        text-align: center;
+        margin-bottom: 4rem;
+      }
+
+      .page-header h1 {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .page-header p {
+        color: var(--gray);
+        font-size: 1.2rem;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      /* Hero Section */
+      .hero-section {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4rem;
+        align-items: center;
+        margin-bottom: 6rem;
+      }
+
+      .hero-content h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--light);
+      }
+
+      .hero-content p {
+        color: var(--gray);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+      }
+
+      .hero-image {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 12px;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--light);
+        font-size: 5rem;
+      }
+
+      /* Features Grid */
+      .features-section {
+        margin-bottom: 6rem;
+      }
+
+      .section-title {
+        text-align: center;
+        font-size: 2.5rem;
+        margin-bottom: 3rem;
+        color: var(--light);
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+      }
+
+      .feature-card {
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: transform 0.3s, border-color 0.3s;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary);
+      }
+
+      .feature-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2rem;
+        color: var(--light);
+      }
+
+      .feature-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--light);
+      }
+
+      .feature-card p {
+        color: var(--gray);
+      }
+
+      /* How It Works */
+      .how-it-works {
+        margin-bottom: 6rem;
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        counter-reset: step-counter;
+      }
+
+      .step {
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 12px;
+        padding: 2rem;
+        position: relative;
+        padding-left: 4rem;
+      }
+
+      .step::before {
+        counter-increment: step-counter;
+        content: counter(step-counter);
+        position: absolute;
+        left: -1rem;
+        top: -1rem;
+        width: 3rem;
+        height: 3rem;
+        background: var(--primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: var(--light);
+        font-size: 1.2rem;
+      }
+
+      .step h3 {
+        font-size: 1.3rem;
+        margin-bottom: 1rem;
+        color: var(--light);
+      }
+
+      .step p {
+        color: var(--gray);
+      }
+
+      /* CTA Section */
+      .cta-section {
+        text-align: center;
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 12px;
+        padding: 4rem 2rem;
+        margin-bottom: 4rem;
+      }
+
+      .cta-section h2 {
+        font-size: 2.5rem;
+        margin-bottom: 1rem;
+        color: var(--light);
+      }
+
+      .cta-section p {
+        color: var(--gray);
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        font-size: 1rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: var(--light);
+      }
+
+      .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-2px);
+      }
+
+      .btn-outline {
+        background: transparent;
+        border: 1px solid var(--gray-dark);
+        color: var(--light);
+      }
+
+      .btn-outline:hover {
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.1);
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+      }
+
+      /* Footer */
+      footer {
+        background-color: var(--darker);
+        border-top: 1px solid var(--gray-dark);
+        padding: 4rem 0 2rem;
+        margin-top: auto;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 3rem;
+        margin-bottom: 3rem;
+      }
+
+      .footer-column h3 {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        color: var(--light);
+      }
+
+      .footer-links {
+        list-style: none;
+      }
+
+      .footer-links li {
+        margin-bottom: 0.8rem;
+      }
+
+      .footer-links a {
+        color: var(--gray);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .footer-links a:hover {
+        color: var(--primary);
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--gray-dark);
+        color: var(--light);
+        text-decoration: none;
+        transition: background 0.3s;
+      }
+
+      .social-links a:hover {
+        background: var(--primary);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid var(--gray-dark);
+        color: var(--gray);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 768px) {
+        .hero-section {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+        
+        .nav-links {
+          display: none;
+        }
+        
+        .page-header h1 {
+          font-size: 2.5rem;
+        }
+      }
+
+  body
+    // Header
+    header.dashboard-header
+      .container
+        .header-content
+          a.logo(href="/dashboard")
+            i.fas.fa-tools
+            | ProblemPad
+          .nav-links
+            a(href="/dashboard") Dashboard
+            a(href="/discover") Discover
+            a(href="/profile") Profile
+            a.active(href="/about") About
+
+    // Main Content
+    main.about-main
+      .container
+        // Page Header
+        .page-header
+          h1 About ProblemPad
+          p Connecting communities to solve problems together. Learn how our platform brings workers and users together to address issues efficiently.
+
+        // Hero Section
+        .hero-section
+          .hero-content
+            h2 Building Better Communities Through Problem Solving
+            p ProblemPad is a revolutionary platform that bridges the gap between service professionals and community members. We believe that every problem has a solution, and every solution starts with the right connection.
+            p Our mission is to create a collaborative environment where issues are raised, addressed, and resolved by the very people who understand them best - the community itself.
+          .hero-image
+            i.fas.fa-hands-helping
+
+        // Features Section
+        .features-section
+          h2.section-title Why Choose ProblemPad?
+          .features-grid
+            .feature-card
+              .feature-icon
+                i.fas.fa-users
+              h3 Community Driven
+              p Join a growing network of users and workers collaborating to solve everyday problems efficiently and effectively.
+            .feature-card
+              .feature-icon
+                i.fas.fa-bolt
+              h3 Quick Resolution
+              p Get your issues addressed faster with our streamlined process that connects you directly with qualified professionals.
+            .feature-card
+              .feature-icon
+                i.fas.fa-shield-alt
+              h3 Trust & Safety
+              p Verified profiles and community ratings ensure you're working with reliable and trustworthy service providers.
+            .feature-card
+              .feature-icon
+                i.fas.fa-comments
+              h3 Direct Communication
+              p Communicate directly with workers, share details, and track progress in real-time through our platform.
+
+        // How It Works
+        .how-it-works
+          h2.section-title How ProblemPad Works
+          .steps
+            .step
+              h3 Raise an Issue
+              p Users describe their problem with details, location, and preferred timeline for resolution.
+            .step
+              h3 Connect with Workers
+              p Service workers in the area receive notifications and can offer their expertise and solutions.
+            .step
+              h3 Collaborate & Solve
+              p Both parties communicate directly, share information, and work together toward a solution.
+            .step
+              h3 Rate & Review
+              p After resolution, users provide feedback to help build trust within the community.
+
+        // CTA Section
+        .cta-section
+          h2 Ready to Join Our Problem-Solving Community?
+          p Whether you're looking to get help with an issue or offer your professional services, ProblemPad is the perfect platform to connect, collaborate, and solve problems together.
+          .btn-group
+            a.btn.btn-primary(href="/create-account")
+              i.fas.fa-user-plus
+              | Join Now
+            a.btn.btn-outline(href="/discover")
+              i.fas.fa-compass
+              | Explore Issues
+
+    // Footer
+    footer
+      .container
+        .footer-content
+          .footer-column
+            h3 ProblemPad
+            p A platform connecting service professionals with users to resolve complaints efficiently.
+            .social-links
+              a(href="https://github.com/DeveloperPuneet", target="_blank")
+                i.fab.fa-github
+          .footer-column
+            h3 Quick Links
+            ul.footer-links
+              li
+                a(href="/") Home
+              li
+                a(href="/about") About Us
+              li
+                a(href="/contact") Contact
+              li
+                a(href="/term-and-conditions") Terms & Conditions
+          .footer-column
+            h3 Account
+            ul.footer-links
+              li
+                a(href="/login") Login
+              li
+                a(href="/create-account") Create Account
+              li
+                a(href="/forgot-pin") Forgot Password
+          .footer-column
+            h3 Contact Info
+            ul.footer-links
+              li
+                i.fas.fa-envelope
+                |  developerpuneet2010@gmail.com
+              li
+                i.fas.fa-map-marker-alt
+                |  Punjab, India
+        .footer-bottom
+          p &copy; 2025 ProblemPad. All rights reserved. | Designed with ❤️ for better problem solving

@@ -1,0 +1,1360 @@
+// views/community.pug
+doctype html
+html(lang="en")
+  head
+    meta(charset="UTF-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0")
+    title #{community.Name} - ProblemPad
+    link(rel="stylesheet", href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css")
+    style.
+      :root {
+        --primary: #6366f1;
+        --primary-dark: #4f46e5;
+        --secondary: #10b981;
+        --dark: #0f172a;
+        --darker: #020617;
+        --light: #f8fafc;
+        --gray: #64748b;
+        --gray-dark: #334155;
+        --warning: #f59e0b;
+        --error: #ef4444;
+        --info: #3b82f6;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: var(--darker);
+        color: var(--light);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+      }
+
+      /* Header with User Info */
+      .dashboard-header {
+        background-color: rgba(2, 6, 23, 0.95);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--gray-dark);
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1000;
+        height: 70px;
+      }
+
+      .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 70px;
+      }
+
+      .logo {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--light);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .logo i {
+        color: var(--primary);
+      }
+
+      .user-menu {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        position: relative;
+        cursor: pointer;
+      }
+
+      .user-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: var(--light);
+      }
+
+      .user-details-popup {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 8px;
+        padding: 1.5rem;
+        width: 300px;
+        display: none;
+        z-index: 1002;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      }
+
+      .user-details-popup.active {
+        display: block;
+      }
+
+      .user-detail-item {
+        margin-bottom: 0.75rem;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .user-detail-label {
+        color: var(--gray);
+        font-weight: 600;
+      }
+
+      .user-detail-value {
+        color: var(--light);
+        text-align: right;
+      }
+
+      .notification-container {
+        position: relative;
+      }
+
+      .notification-bell {
+        position: relative;
+        background: none;
+        border: none;
+        color: var(--light);
+        font-size: 1.25rem;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: background 0.3s;
+      }
+
+      .notification-bell:hover {
+        background: var(--gray-dark);
+      }
+
+      .notification-count {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background: var(--error);
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 0.7rem;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+      }
+
+      .logout-btn {
+        background: var(--gray-dark);
+        color: var(--light);
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background 0.3s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .logout-btn:hover {
+        background: var(--primary);
+      }
+
+      /* Main Content */
+      .community-main {
+        flex: 1;
+        margin-top: 70px;
+        padding: 2rem 0;
+      }
+
+      .community-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .community-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .community-header p {
+        opacity: 0.9;
+        margin-bottom: 1rem;
+      }
+
+      .community-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .stat {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem;
+        border-radius: 8px;
+        text-align: center;
+      }
+
+      .stat-number {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+      }
+
+      /* Problems Grid by Category */
+      .problems-categories {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .category-section {
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 12px;
+        padding: 1.5rem;
+      }
+
+      .category-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--gray-dark);
+      }
+
+      .category-icon {
+        font-size: 1.5rem;
+        color: var(--primary);
+      }
+
+      .category-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+
+      .problem-card {
+        background: var(--darker);
+        border: 1px solid var(--gray-dark);
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s;
+      }
+
+      .problem-card.solved {
+        border-color: var(--secondary);
+        opacity: 0.8;
+      }
+
+      .problem-card.waiting-confirmation {
+        border-color: var(--warning);
+      }
+
+      .problem-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 0.75rem;
+      }
+
+      .problem-user {
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .problem-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+
+      .status-pending { background: var(--warning); color: white; }
+      .status-solved { background: var(--secondary); color: white; }
+      .status-waiting { background: var(--info); color: white; }
+
+      .problem-message {
+        margin-bottom: 0.75rem;
+        line-height: 1.5;
+      }
+
+      .problem-details {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+      }
+
+      .detail-item {
+        margin-bottom: 0.5rem;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .detail-label {
+        color: var(--gray);
+        font-weight: 600;
+      }
+
+      .worker-remarks {
+        background: rgba(59, 130, 246, 0.1);
+        border-left: 3px solid var(--info);
+        padding: 0.75rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+      }
+
+      .worker-remarks strong {
+        color: var(--info);
+      }
+
+      .problem-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .btn-primary { background: var(--primary); color: var(--light); }
+      .btn-primary:hover { background: var(--primary-dark); }
+      .btn-success { background: var(--secondary); color: var(--light); }
+      .btn-success:hover { background: #0da271; }
+      .btn-warning { background: var(--warning); color: var(--light); }
+      .btn-warning:hover { background: #d97706; }
+      .btn-info { background: var(--info); color: var(--light); }
+      .btn-info:hover { background: #2563eb; }
+
+      /* Raise Problem Section */
+      .raise-problem-section {
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .section-title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--light);
+      }
+
+      .form-group {
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+      }
+
+      .form-group input,
+      .form-group textarea,
+      .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--gray-dark);
+        border-radius: 8px;
+        background: var(--darker);
+        color: var(--light);
+        resize: vertical;
+      }
+
+      .form-group textarea {
+        min-height: 100px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      /* Members Section */
+      .members-section {
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      .members-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+      }
+
+      .member-card {
+        background: var(--darker);
+        border: 1px solid var(--gray-dark);
+        border-radius: 8px;
+        padding: 1rem;
+        position: relative;
+      }
+
+      .member-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin: 0 auto 0.5rem;
+        color: var(--light);
+      }
+
+      .member-name {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        text-align: center;
+      }
+
+      .member-details {
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--gray);
+      }
+
+      .owner-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background: var(--primary);
+        color: white;
+        border-radius: 50%;
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.7rem;
+      }
+
+      /* Notification Dropdown */
+      .notification-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: var(--dark);
+        border: 1px solid var(--gray-dark);
+        border-radius: 8px;
+        width: 400px;
+        max-height: 500px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1001;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      }
+
+      .notification-dropdown.active {
+        display: block;
+      }
+
+      .notification-header {
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-dark);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .notification-list {
+        max-height: 350px;
+        overflow-y: auto;
+      }
+
+      .notification-item {
+        padding: 1rem;
+        border-bottom: 1px solid var(--gray-dark);
+        display: flex;
+        gap: 0.75rem;
+        transition: background 0.3s;
+      }
+
+      .notification-item:hover {
+        background: var(--gray-dark);
+      }
+
+      .notification-item.unread {
+        background: rgba(99, 102, 241, 0.1);
+      }
+
+      .notification-icon {
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        margin-top: 0.25rem;
+      }
+
+      .notification-content {
+        flex: 1;
+      }
+
+      .notification-message {
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+      }
+
+      .notification-time {
+        font-size: 0.8rem;
+        color: var(--gray);
+        margin-bottom: 0.5rem;
+      }
+
+      .notification-actions {
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+      }
+
+      /* Footer */
+      footer {
+        background-color: var(--darker);
+        border-top: 1px solid var(--gray-dark);
+        padding: 4rem 0 2rem;
+        margin-top: auto;
+      }
+
+      .footer-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 3rem;
+        margin-bottom: 3rem;
+      }
+
+      .footer-column h3 {
+        font-size: 1.2rem;
+        margin-bottom: 1.5rem;
+        color: var(--light);
+      }
+
+      .footer-links {
+        list-style: none;
+      }
+
+      .footer-links li {
+        margin-bottom: 0.8rem;
+      }
+
+      .footer-links a {
+        color: var(--gray);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .footer-links a:hover {
+        color: var(--primary);
+      }
+
+      .social-links {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+
+      .social-links a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--gray-dark);
+        color: var(--light);
+        text-decoration: none;
+        transition: background 0.3s;
+      }
+
+      .social-links a:hover {
+        background: var(--primary);
+      }
+
+      .footer-bottom {
+        text-align: center;
+        padding-top: 2rem;
+        border-top: 1px solid var(--gray-dark);
+        color: var(--gray);
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 768px) {
+        .problems-categories {
+          grid-template-columns: 1fr;
+        }
+
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+
+        .notification-dropdown {
+          width: 300px;
+          right: -50px;
+        }
+      }
+
+body
+  // Header
+  header.dashboard-header
+    .container
+      .header-content
+        a.logo(href="/dashboard")
+          i.fas.fa-tools
+          | ProblemPad
+        .user-menu
+          // Notifications
+          .notification-container
+            button.notification-bell#notificationBell
+              i.fas.fa-bell
+              span.notification-count#notificationCount 0
+            .notification-dropdown#notificationDropdown
+              .notification-header
+                h3 Notifications
+                button.btn.btn-outline.btn-sm#markAllRead Mark All Read
+              .notification-list#notificationList
+                .notification-item
+                  .notification-message Loading notifications...
+
+          // User Info with Popup
+          .user-info#userInfo
+            .user-avatar= user.Name.charAt(0).toUpperCase()
+            .user-details
+              .user-name= user.Name
+              .user-role= user.role
+            .user-details-popup#userDetailsPopup
+              .user-detail-item
+                .user-detail-label Name:
+                .user-detail-value= user.Name
+              .user-detail-item
+                .user-detail-label Mobile:
+                .user-detail-value= user.Mob_no
+              .user-detail-item
+                .user-detail-label Address:
+                .user-detail-value= user.Address
+              .user-detail-item
+                .user-detail-label Role:
+                .user-detail-value= user.role
+              if user.Proff
+                .user-detail-item
+                  .user-detail-label Profession:
+                  .user-detail-value= user.Proff
+
+          a.logout-btn(href="/logout")
+            i.fas.fa-sign-out-alt
+            |  Logout
+
+  // Main Content
+  main.community-main
+    .container
+      // Community Header
+      .community-header
+        h1= community.Name
+        p= community.Description || "Community for problem resolution"
+        .community-stats
+          .stat
+            .stat-number= community.members.length
+            .stat-label Total Members
+          .stat
+            .stat-number= activeIssues
+            .stat-label Active Problems
+          .stat
+            .stat-number= problems.filter(p => p.solved && p.confirmed_solved).length
+            .stat-label Solved & Confirmed
+          .stat
+            .stat-number= problems.filter(p => p.solved && !p.confirmed_solved).length
+            .stat-label Waiting Confirmation
+
+      // Problems by Category
+      .problems-categories
+        // Technical Problems
+        .category-section
+          .category-header
+            .category-icon
+              i.fas.fa-laptop-code
+            .category-title Technical Problems
+          if problems.filter(p => p.category === 'technical').length > 0
+            each problem in problems.filter(p => p.category === 'technical')
+              .problem-card(
+                class=problem.confirmed_solved ? 'solved' : problem.solved ? 'waiting-confirmation' : ''
+              )
+                .problem-header
+                  .problem-user
+                    each member in memberDetails
+                      if member.us_id === problem.us_id
+                        .user-info-container
+                          .user-main-info
+                            .user-name= member.Name
+                            .user-role-badge(class=member.role === 'worker' ? 'worker-badge' : 'user-badge')= member.role
+                          .user-contact-info
+                            .contact-item
+                              i.fas.fa-phone
+                              span= member.Mob_no
+                            if member.Address
+                              .contact-item
+                                i.fas.fa-map-marker-alt
+                                span= member.Address
+                  .problem-status(class=problem.confirmed_solved ? 'status-solved' : problem.solved ? 'status-waiting' : 'status-pending')
+                    = problem.confirmed_solved ? 'Confirmed Solved' : problem.solved ? 'Waiting Confirmation' : 'Pending'
+                .problem-message= problem.msg
+                .problem-details
+                  .detail-item
+                    .detail-label Category:
+                    .detail-value= problem.category
+                  if problem.remarks
+                    .detail-item
+                      .detail-label User Remarks:
+                      .detail-value= problem.remarks
+                  if problem.worker_remarks
+                    .worker-remarks
+                      strong Worker Remarks: 
+                      | #{problem.worker_remarks}
+                .problem-actions
+                  if !problem.solved && (user.role === 'worker' || isOwner)
+                    form(action="/mark-problem-solved", method="POST", style="display: inline;")
+                      input(type="hidden", name="problemId", value=problem.pb_id)
+                      input(type="hidden", name="communityId", value=community.gp_id)
+                      .form-group
+                        label(for=`workerRemarks-${problem.pb_id}`) Your Remarks
+                        textarea(
+                          id=`workerRemarks-${problem.pb_id}`,
+                          name="worker_remarks",
+                          placeholder="Add your solution details...",
+                          required
+                        )
+                      button.btn.btn-success(type="submit")
+                        i.fas.fa-check
+                        | Mark Solved
+                  else if problem.solved && !problem.confirmed_solved && problem.us_id === user.us_id
+                    form(action="/confirm-solution", method="POST", style="display: inline;")
+                      input(type="hidden", name="problemId", value=problem.pb_id)
+                      input(type="hidden", name="communityId", value=community.gp_id)
+                      button.btn.btn-info(type="submit")
+                        i.fas.fa-thumbs-up
+                        | Confirm Solution
+          else
+            .problem-card(style="text-align: center; padding: 2rem;")
+              .problem-message No technical problems reported yet.
+
+        // Electrical Problems
+        .category-section
+          .category-header
+            .category-icon
+              i.fas.fa-bolt
+            .category-title Electrical Problems
+          if problems.filter(p => p.category === 'electrical').length > 0
+            each problem in problems.filter(p => p.category === 'electrical')
+              .problem-card(
+                class=problem.confirmed_solved ? 'solved' : problem.solved ? 'waiting-confirmation' : ''
+              )
+                .problem-header
+                  .problem-user
+                    each member in memberDetails
+                      if member.us_id === problem.us_id
+                        .user-info-container
+                          .user-main-info
+                            .user-name= member.Name
+                            .user-role-badge(class=member.role === 'worker' ? 'worker-badge' : 'user-badge')= member.role
+                          .user-contact-info
+                            .contact-item
+                              i.fas.fa-phone
+                              span= member.Mob_no
+                            if member.Address
+                              .contact-item
+                                i.fas.fa-map-marker-alt
+                                span= member.Address
+                  .problem-status(class=problem.confirmed_solved ? 'status-solved' : problem.solved ? 'status-waiting' : 'status-pending')
+                    = problem.confirmed_solved ? 'Confirmed Solved' : problem.solved ? 'Waiting Confirmation' : 'Pending'
+                .problem-message= problem.msg
+                .problem-details
+                  .detail-item
+                    .detail-label Category:
+                    .detail-value= problem.category
+                  if problem.remarks
+                    .detail-item
+                      .detail-label User Remarks:
+                      .detail-value= problem.remarks
+                  if problem.worker_remarks
+                    .worker-remarks
+                      strong Worker Remarks: 
+                      | #{problem.worker_remarks}
+                .problem-actions
+                  if !problem.solved && (user.role === 'worker' || isOwner)
+                    form(action="/mark-problem-solved", method="POST", style="display: inline;")
+                      input(type="hidden", name="problemId", value=problem.pb_id)
+                      input(type="hidden", name="communityId", value=community.gp_id)
+                      .form-group
+                        label(for=`workerRemarks-${problem.pb_id}`) Your Remarks
+                        textarea(
+                          id=`workerRemarks-${problem.pb_id}`,
+                          name="worker_remarks",
+                          placeholder="Add your solution details...",
+                          required
+                        )
+                      button.btn.btn-success(type="submit")
+                        i.fas.fa-check
+                        | Mark Solved
+                  else if problem.solved && !problem.confirmed_solved && problem.us_id === user.us_id
+                    form(action="/confirm-solution", method="POST", style="display: inline;")
+                      input(type="hidden", name="problemId", value=problem.pb_id)
+                      input(type="hidden", name="communityId", value=community.gp_id)
+                      button.btn.btn-info(type="submit")
+                        i.fas.fa-thumbs-up
+                        | Confirm Solution
+          else
+            .problem-card(style="text-align: center; padding: 2rem;")
+              .problem-message No electrical problems reported yet.
+
+        // Plumbing Problems
+        .category-section
+          .category-header
+            .category-icon
+              i.fas.fa-tint
+            .category-title Plumbing Problems
+          if problems.filter(p => p.category === 'plumbing').length > 0
+            each problem in problems.filter(p => p.category === 'plumbing')
+              .problem-card(
+                class=problem.confirmed_solved ? 'solved' : problem.solved ? 'waiting-confirmation' : ''
+              )
+                .problem-header
+                  .problem-user
+                    each member in memberDetails
+                      if member.us_id === problem.us_id
+                        .user-info-container
+                          .user-main-info
+                            .user-name= member.Name
+                            .user-role-badge(class=member.role === 'worker' ? 'worker-badge' : 'user-badge')= member.role
+                          .user-contact-info
+                            .contact-item
+                              i.fas.fa-phone
+                              span= member.Mob_no
+                            if member.Address
+                              .contact-item
+                                i.fas.fa-map-marker-alt
+                                span= member.Address
+                  .problem-status(class=problem.confirmed_solved ? 'status-solved' : problem.solved ? 'status-waiting' : 'status-pending')
+                    = problem.confirmed_solved ? 'Confirmed Solved' : problem.solved ? 'Waiting Confirmation' : 'Pending'
+                .problem-message= problem.msg
+                .problem-details
+                  .detail-item
+                    .detail-label Category:
+                    .detail-value= problem.category
+                  if problem.remarks
+                    .detail-item
+                      .detail-label User Remarks:
+                      .detail-value= problem.remarks
+                  if problem.worker_remarks
+                    .worker-remarks
+                      strong Worker Remarks: 
+                      | #{problem.worker_remarks}
+                .problem-actions
+                  if !problem.solved && (user.role === 'worker' || isOwner)
+                    form(action="/mark-problem-solved", method="POST", style="display: inline;")
+                      input(type="hidden", name="problemId", value=problem.pb_id)
+                      input(type="hidden", name="communityId", value=community.gp_id)
+                      .form-group
+                        label(for=`workerRemarks-${problem.pb_id}`) Your Remarks
+                        textarea(
+                          id=`workerRemarks-${problem.pb_id}`,
+                          name="worker_remarks",
+                          placeholder="Add your solution details...",
+                          required
+                        )
+                      button.btn.btn-success(type="submit")
+                        i.fas.fa-check
+                        | Mark Solved
+                  else if problem.solved && !problem.confirmed_solved && problem.us_id === user.us_id
+                    form(action="/confirm-solution", method="POST", style="display: inline;")
+                      input(type="hidden", name="problemId", value=problem.pb_id)
+                      input(type="hidden", name="communityId", value=community.gp_id)
+                      button.btn.btn-info(type="submit")
+                        i.fas.fa-thumbs-up
+                        | Confirm Solution
+          else
+            .problem-card(style="text-align: center; padding: 2rem;")
+              .problem-message No plumbing problems reported yet.
+
+        // Other Problems
+        .category-section
+          .category-header
+            .category-icon
+              i.fas.fa-tools
+            .category-title Other Problems
+          if problems.filter(p => p.category === 'other').length > 0
+            each problem in problems.filter(p => p.category === 'other')
+              .problem-card(
+                class=problem.confirmed_solved ? 'solved' : problem.solved ? 'waiting-confirmation' : ''
+              )
+                .problem-header
+                  .problem-user
+                    each member in memberDetails
+                      if member.us_id === problem.us_id
+                        .user-info-container
+                          .user-main-info
+                            .user-name= member.Name
+                            .user-role-badge(class=member.role === 'worker' ? 'worker-badge' : 'user-badge')= member.role
+                          .user-contact-info
+                            .contact-item
+                              i.fas.fa-phone
+                              span= member.Mob_no
+                            if member.Address
+                              .contact-item
+                                i.fas.fa-map-marker-alt
+                                span= member.Address
+                  .problem-status(class=problem.confirmed_solved ? 'status-solved' : problem.solved ? 'status-waiting' : 'status-pending')
+                    = problem.confirmed_solved ? 'Confirmed Solved' : problem.solved ? 'Waiting Confirmation' : 'Pending'
+                .problem-message= problem.msg
+                .problem-details
+                  .detail-item
+                    .detail-label Category:
+                    .detail-value= problem.category
+                  if problem.remarks
+                    .detail-item
+                      .detail-label User Remarks:
+                      .detail-value= problem.remarks
+                  if problem.worker_remarks
+                    .worker-remarks
+                      strong Worker Remarks: 
+                      | #{problem.worker_remarks}
+                .problem-actions
+                  if !problem.solved && (user.role === 'worker' || isOwner)
+                    form(action="/mark-problem-solved", method="POST", style="display: inline;")
+                      input(type="hidden", name="problemId", value=problem.pb_id)
+                      input(type="hidden", name="communityId", value=community.gp_id)
+                      .form-group
+                        label(for=`workerRemarks-${problem.pb_id}`) Your Remarks
+                        textarea(
+                          id=`workerRemarks-${problem.pb_id}`,
+                          name="worker_remarks",
+                          placeholder="Add your solution details...",
+                          required
+                        )
+                      button.btn.btn-success(type="submit")
+                        i.fas.fa-check
+                        | Mark Solved
+                  else if problem.solved && !problem.confirmed_solved && problem.us_id === user.us_id
+                    form(action="/confirm-solution", method="POST", style="display: inline;")
+                      input(type="hidden", name="problemId", value=problem.pb_id)
+                      input(type="hidden", name="communityId", value=community.gp_id)
+                      button.btn.btn-info(type="submit")
+                        i.fas.fa-thumbs-up
+                        | Confirm Solution
+          else
+            .problem-card(style="text-align: center; padding: 2rem;")
+              .problem-message No other problems reported yet.
+
+      // Raise Problem Section
+      .raise-problem-section
+        .section-title Raise New Problem
+        form(action=`/com/${community.gp_id}/raise-problem`, method="POST")
+          .form-row
+            .form-group
+              label(for="category") Problem Category *
+              select(id="category", name="category", required)
+                option(value="") Select a category
+                option(value="technical") Technical (Computers, Phones, Internet)
+                option(value="electrical") Electrical (Wiring, Appliances, Power)
+                option(value="plumbing") Plumbing (Pipes, Water, Drainage)
+                option(value="carpentry") Carpentry (Furniture, Woodwork)
+                option(value="cleaning") Cleaning Services
+                option(value="other") Other
+          .form-group
+            label(for="msg") Problem Description *
+            textarea(
+              id="msg", 
+              name="msg", 
+              placeholder="Describe your problem in detail. Include specific issues, error messages, or what you need help with...", 
+              required
+            )
+          .form-group
+            label(for="remarks") Additional Remarks (Optional)
+            textarea(
+              id="remarks", 
+              name="remarks", 
+              placeholder="Any additional information, location details, preferred time for service, etc..."
+            )
+          button.btn.btn-primary(type="submit")
+            i.fas.fa-paper-plane
+            | Submit Problem
+
+      // Members Section
+      .members-section
+        .section-title Community Members
+        .members-grid
+          each member, index in memberDetails
+            .member-card
+              if index === 0
+                .owner-badge(title="Community Owner")
+                  i.fas.fa-crown
+              .member-avatar= member.Name.charAt(0).toUpperCase()
+              .member-name= member.Name
+              .member-details
+                div= member.role
+                if member.Proff
+                  div= member.Proff
+                div 📱 #{member.Mob_no}
+                if member.Address
+                  div 📍 #{member.Address}
+
+  // Footer
+  footer
+    .container
+      .footer-content
+        .footer-column
+          h3 ProblemPad
+          p A platform connecting service professionals with users to resolve complaints efficiently.
+          .social-links
+            a(href="https://github.com/DeveloperPuneet", target="_blank")
+              i.fab.fa-github
+        .footer-column
+          h3 Quick Links
+          ul.footer-links
+            li
+              a(href="/") Home
+            li
+              a(href="/about") About Us
+            li
+              a(href="/contact") Contact
+            li
+              a(href="/term-and-conditions") Terms & Conditions
+        .footer-column
+          h3 Account
+          ul.footer-links
+            li
+              a(href="/login") Login
+            li
+              a(href="/create-account") Create Account
+            li
+              a(href="/forgot-pin") Forgot Password
+        .footer-column
+          h3 Contact Info
+          ul.footer-links
+            li
+              i.fas.fa-envelope
+              |  developerpuneet2010@gmail.com
+            li
+              i.fas.fa-map-marker-alt
+              |  Punjab, India
+      .footer-bottom
+        p &copy; 2025 ProblemPad. All rights reserved. | Designed with ❤️ for better problem solving
+
+style.
+  /* Additional Styles for User Information Display */
+  .user-info-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .user-main-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .user-name {
+    font-weight: 600;
+    color: var(--light);
+    font-size: 1.1rem;
+  }
+
+  .user-role-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  .worker-badge {
+    background: var(--primary);
+    color: var(--light);
+  }
+
+  .user-badge {
+    background: var(--gray-dark);
+    color: var(--light);
+  }
+
+  .user-contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray);
+    font-size: 0.9rem;
+  }
+
+  .contact-item i {
+    width: 16px;
+    color: var(--primary);
+  }
+
+  /* Problem Card Enhancements */
+  .problem-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-dark);
+  }
+
+  .problem-user {
+    flex: 1;
+  }
+
+  .problem-status {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .status-solved {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid #10b981;
+  }
+
+  .status-waiting {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    border: 1px solid #f59e0b;
+  }
+
+  .status-pending {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--primary);
+    border: 1px solid var(--primary);
+  }
+
+  @media (max-width: 768px) {
+    .problem-header {
+      flex-direction: column;
+      gap: 1rem;
+    }
+    
+    .problem-status {
+      align-self: flex-start;
+    }
+  }
+    script.
+      // User Details Popup
+      document.getElementById('userInfo').addEventListener('click', function(e) {
+        e.stopPropagation();
+        document.getElementById('userDetailsPopup').classList.toggle('active');
+      });
+
+      // Close popup when clicking outside
+      document.addEventListener('click', function() {
+        document.getElementById('userDetailsPopup').classList.remove('active');
+      });
+
+      // Notification System (Same as before but enhanced)
+      let notifications = [];
+
+      async function loadNotifications() {
+        try {
+          const response = await fetch('/notifications');
+          notifications = await response.json();
+          updateNotificationUI();
+        } catch (error) {
+          console.error('Failed to load notifications:', error);
+        }
+      }
+
+      function updateNotificationUI() {
+        const notificationCount = document.getElementById('notificationCount');
+        const notificationList = document.getElementById('notificationList');
+        const unreadCount = notifications.filter(n => !n.read).length;
+
+        notificationCount.textContent = unreadCount;
+        notificationCount.style.display = unreadCount > 0 ? 'flex' : 'none';
+
+        if (notifications.length === 0) {
+          notificationList.innerHTML = '<div class="notification-item"><div class="notification-message">No notifications</div></div>';
+        } else {
+          notificationList.innerHTML = notifications.slice(0, 5).map(notification => `
+            <div class="notification-item ${notification.read ? '' : 'unread'}" data-id="${notification.id}">
+              <div class="notification-icon">
+                ${getNotificationIcon(notification.type)}
+              </div>
+              <div class="notification-content">
+                <div class="notification-message">${notification.message}</div>
+                <div class="notification-time">${formatTime(notification.timestamp)}</div>
+                <div class="notification-actions">
+                  ${!notification.read ? `<button class="btn btn-sm btn-outline mark-read" onclick="markNotificationRead('${notification.id}')">Mark Read</button>` : ''}
+                  ${notification.type === 'invitation' ? `<button class="btn btn-sm btn-primary" onclick="acceptInvitation('${notification.communityId}')">Accept</button>` : ''}
+                  ${notification.type === 'new_problem' && notification.communityId ? `<a href="/com/${notification.communityId}" class="btn btn-sm btn-outline">View</a>` : ''}
+                  ${notification.type === 'problem_solved' && notification.communityId ? `<a href="/com/${notification.communityId}" class="btn btn-sm btn-outline">Check Solution</a>` : ''}
+                </div>
+              </div>
+            </div>
+          `).join('');
+        }
+      }
+
+      function getNotificationIcon(type) {
+        const icons = {
+          'new_problem': '<i class="fas fa-exclamation-circle text-warning"></i>',
+          'problem_solved': '<i class="fas fa-check-circle text-success"></i>',
+          'solution_confirmed': '<i class="fas fa-thumbs-up text-info"></i>',
+          'invitation': '<i class="fas fa-user-plus text-primary"></i>',
+          'new_member': '<i class="fas fa-users text-info"></i>',
+          'general': '<i class="fas fa-bell text-gray"></i>'
+        };
+        return icons[type] || icons.general;
+      }
+
+      function formatTime(timestamp) {
+        const now = new Date();
+        const time = new Date(timestamp);
+        const diff = now - time;
+        
+        const minutes = Math.floor(diff / 60000);
+        const hours = Math.floor(diff / 3600000);
+        const days = Math.floor(diff / 86400000);
+        
+        if (minutes < 1) return 'Just now';
+        if (minutes < 60) return `${minutes}m ago`;
+        if (hours < 24) return `${hours}h ago`;
+        if (days < 7) return `${days}d ago`;
+        
+        return time.toLocaleDateString();
+      }
+
+      async function markNotificationRead(notificationId) {
+        try {
+          await fetch('/mark-notification-read', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ notificationId })
+          });
+          await loadNotifications();
+        } catch (error) {
+          console.error('Failed to mark notification as read:', error);
+        }
+      }
+
+      async function markAllNotificationsRead() {
+        try {
+          await fetch('/mark-all-notifications-read', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            }
+          });
+          await loadNotifications();
+        } catch (error) {
+          console.error('Failed to mark all notifications as read:', error);
+        }
+      }
+
+      async function acceptInvitation(communityId) {
+        try {
+          const response = await fetch(`/accept-invitation/${communityId}`, { method: 'POST' });
+          if (response.ok) {
+            await loadNotifications();
+            window.location.href = `/com/${communityId}`;
+          } else {
+            alert('Failed to accept invitation');
+          }
+        } catch (error) {
+          console.error('Failed to accept invitation:', error);
+          alert('Failed to accept invitation');
+        }
+      }
+
+      // Notification dropdown toggle
+      document.getElementById('notificationBell').addEventListener('click', function(e) {
+        e.stopPropagation();
+        const dropdown = document.getElementById('notificationDropdown');
+        dropdown.classList.toggle('active');
+        if (dropdown.classList.contains('active')) {
+          loadNotifications();
+        }
+      });
+
+      document.getElementById('markAllRead').addEventListener('click', markAllNotificationsRead);
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', function() {
+        document.getElementById('notificationDropdown').classList.remove('active');
+      });
+
+      // Auto-refresh notifications every 30 seconds
+      setInterval(loadNotifications, 30000);
+
+      // Load notifications on page load
+      document.addEventListener('DOMContentLoaded', loadNotifications);
