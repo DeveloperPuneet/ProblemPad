@@ -43,6 +43,26 @@ const schema = new mongoose.Schema({
     solved_by: {  // Track who solved the problem
         type: String,
         default: null
+    },
+    audio_data: {
+        type: Buffer, // Store audio as binary buffer
+        required: false
+    },
+    audio_mimeType: {
+        type: String,
+        required: false
+    },
+    has_audio: {
+        type: Boolean,
+        default: false
+    },
+    created_at: {
+        type: Date,
+        default: Date.now
+    },
+    solved_at: {
+        type: Date,
+        default: null
     }
 });
 

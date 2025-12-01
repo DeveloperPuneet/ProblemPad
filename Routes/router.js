@@ -122,5 +122,57 @@ router.get('/profile', controller.profileSettings);
 router.post('/update-profile', controller.updateProfile);
 router.get('/forgot-pin', controller.forgotPinPage);
 router.post('/forgot-pin', controller.resetPin);
+// Make sure this route exists in your server
+const Problems = require("../models/problem")
+router.get('/problem-audio/:problemId', async (req, res) => {
+    try {
+        const problem = await Problems.findOne({ pb_id: req.params.problemId });
+        
+        if (!problem || !problem.audio_data) {
+            console.log('Audio not found for problem:', req.params.problemId);
+            return res.status(404).send('Audio not found');
+        }
+
+        console.log('Serving audio for problem:', req.params.problemId);
+        console.log('Audio size:', problem.audio_data.length, 'bytes');
+        console.log('Audio MIME type:', problem.audio_mimeType);
+        
+        // Set appropriate headers based on MIME type
+        const mimeType = problem.audio_mimeType || 'audio/mpeg';
+        
+        res.set({
+            'Content-Type': mimeType,
+            'Content-Length': problem.audio_data.length,
+            'Cache-Control': 'public, max-age=31536000',
+            'Accept-Ranges': 'bytes',
+            'Content-Disposition': `inline; filename="audio_${req.params.problemId}.${getFileExtension(mimeType)}"`
+        });
+
+        // Send the audio buffer
+        res.send(problem.audio_data);
+        
+    } catch (error) {
+        console.error('Error serving audio:', error);
+        res.status(500).send('Error serving audio');
+    }
+});
+
+// Helper function to get file extension from MIME type
+function getFileExtension(mimeType) {
+    const extensions = {
+        'audio/mpeg': 'mp3',
+        'audio/mp3': 'mp3',
+        'audio/mp4': 'mp4',
+        'audio/wav': 'wav',
+        'audio/x-wav': 'wav',
+        'audio/webm': 'webm',
+        'audio/ogg': 'ogg',
+        'audio/aac': 'aac',
+        'audio/flac': 'flac'
+    };
+    
+    return extensions[mimeType] || 'mp3';
+}
+
 // Export router
 module.exports = router; // Export the router 🚀

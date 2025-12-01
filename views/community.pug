@@ -1,7 +1,7 @@
-// views/community.pug
 doctype html
 html(lang="en")
   head
+    script(src="https://unpkg.com/lamejs@1.2.0/lame.min.js")
     meta(charset="UTF-8")
     meta(name="viewport", content="width=device-width, initial-scale=1.0")
     title #{community.Name} - ProblemPad
@@ -379,6 +379,15 @@ html(lang="en")
       .btn-warning:hover { background: #d97706; }
       .btn-info { background: var(--info); color: var(--light); }
       .btn-info:hover { background: #2563eb; }
+      .btn-outline { 
+        background: transparent; 
+        border: 1px solid var(--gray-dark); 
+        color: var(--light); 
+      }
+      .btn-outline:hover { 
+        border-color: var(--primary); 
+        background: rgba(99, 102, 241, 0.1); 
+      }
 
       /* Raise Problem Section */
       .raise-problem-section {
@@ -570,6 +579,127 @@ html(lang="en")
         font-size: 0.8rem;
       }
 
+      /* Audio Recording Styles */
+      .audio-recording-container {
+        margin-top: 1rem;
+      }
+
+      .recording-controls {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+
+      .recording-status {
+        display: none;
+        align-items: center;
+        gap: 15px;
+        margin: 10px 0;
+        padding: 10px;
+        background: rgba(239, 68, 68, 0.1);
+        border-radius: 8px;
+      }
+
+      .recording-indicator {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #ef4444;
+        font-weight: bold;
+      }
+
+      @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.5; }
+        100% { opacity: 1; }
+      }
+
+      .recording-indicator i {
+        animation: pulse 1s infinite;
+      }
+
+      .recording-timer {
+        font-family: monospace;
+        font-size: 1.2rem;
+        color: #f59e0b;
+        margin-left: auto;
+      }
+
+      .recording-actions {
+        display: none;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      /* Audio Player Styles */
+      .audio-player-section {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(99, 102, 241, 0.1);
+        border-radius: 8px;
+      }
+
+      .audio-player-container {
+        margin-top: 10px;
+      }
+
+      /* User Info Styles */
+      .user-info-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .user-main-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .user-name {
+        font-weight: 600;
+        color: var(--light);
+        font-size: 1.1rem;
+      }
+
+      .user-role-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: capitalize;
+      }
+
+      .worker-badge {
+        background: var(--primary);
+        color: var(--light);
+      }
+
+      .user-badge {
+        background: var(--gray-dark);
+        color: var(--light);
+      }
+
+      .user-contact-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--gray);
+        font-size: 0.9rem;
+      }
+
+      .contact-item i {
+        width: 16px;
+        color: var(--primary);
+      }
+
       /* Footer */
       footer {
         background-color: var(--darker);
@@ -652,6 +782,16 @@ html(lang="en")
         .notification-dropdown {
           width: 300px;
           right: -50px;
+        }
+
+        .recording-controls {
+          flex-direction: column;
+        }
+        
+        .recording-status {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
         }
       }
 
@@ -770,6 +910,17 @@ body
                     .worker-remarks
                       strong Worker Remarks: 
                       | #{problem.worker_remarks}
+                  // Audio Player Section
+                  if problem.has_audio
+                    .audio-player-section
+                      strong Audio Description: 
+                      button.btn.btn-sm.btn-outline(type="button" onclick=`playAudio('${problem.pb_id}')` style="margin-left: 10px;")
+                        i.fas.fa-play
+                        | Play Audio
+                      .audio-player-container(id=`audioContainer-${problem.pb_id}` style="margin-top: 10px; display: none;")
+                        audio(controls id=`audioPlayer-${problem.pb_id}` style="width: 100%;")
+                          source(src=`/problem-audio/${problem.pb_id}` type="audio/webm")
+                        p.small.text-muted(style="margin-top: 5px;") Click play to hear the audio description
                 .problem-actions
                   if !problem.solved && (user.role === 'worker' || isOwner)
                     form(action="/mark-problem-solved", method="POST", style="display: inline;")
@@ -839,6 +990,17 @@ body
                     .worker-remarks
                       strong Worker Remarks: 
                       | #{problem.worker_remarks}
+                  // Audio Player Section
+                  if problem.has_audio
+                    .audio-player-section
+                      strong Audio Description: 
+                      button.btn.btn-sm.btn-outline(type="button" onclick=`playAudio('${problem.pb_id}')` style="margin-left: 10px;")
+                        i.fas.fa-play
+                        | Play Audio
+                      .audio-player-container(id=`audioContainer-${problem.pb_id}` style="margin-top: 10px; display: none;")
+                        audio(controls id=`audioPlayer-${problem.pb_id}` style="width: 100%;")
+                          source(src=`/problem-audio/${problem.pb_id}` type="audio/webm")
+                        p.small.text-muted(style="margin-top: 5px;") Click play to hear the audio description
                 .problem-actions
                   if !problem.solved && (user.role === 'worker' || isOwner)
                     form(action="/mark-problem-solved", method="POST", style="display: inline;")
@@ -908,6 +1070,17 @@ body
                     .worker-remarks
                       strong Worker Remarks: 
                       | #{problem.worker_remarks}
+                  // Audio Player Section
+                  if problem.has_audio
+                    .audio-player-section
+                      strong Audio Description: 
+                      button.btn.btn-sm.btn-outline(type="button" onclick=`playAudio('${problem.pb_id}')` style="margin-left: 10px;")
+                        i.fas.fa-play
+                        | Play Audio
+                      .audio-player-container(id=`audioContainer-${problem.pb_id}` style="margin-top: 10px; display: none;")
+                        audio(controls id=`audioPlayer-${problem.pb_id}` style="width: 100%;")
+                          source(src=`/problem-audio/${problem.pb_id}` type="audio/webm")
+                        p.small.text-muted(style="margin-top: 5px;") Click play to hear the audio description
                 .problem-actions
                   if !problem.solved && (user.role === 'worker' || isOwner)
                     form(action="/mark-problem-solved", method="POST", style="display: inline;")
@@ -977,6 +1150,17 @@ body
                     .worker-remarks
                       strong Worker Remarks: 
                       | #{problem.worker_remarks}
+                  // Audio Player Section
+                  if problem.has_audio
+                    .audio-player-section
+                      strong Audio Description: 
+                      button.btn.btn-sm.btn-outline(type="button" onclick=`playAudio('${problem.pb_id}')` style="margin-left: 10px;")
+                        i.fas.fa-play
+                        | Play Audio
+                      .audio-player-container(id=`audioContainer-${problem.pb_id}` style="margin-top: 10px; display: none;")
+                        audio(controls id=`audioPlayer-${problem.pb_id}` style="width: 100%;")
+                          source(src=`/problem-audio/${problem.pb_id}` type="audio/webm")
+                        p.small.text-muted(style="margin-top: 5px;") Click play to hear the audio description
                 .problem-actions
                   if !problem.solved && (user.role === 'worker' || isOwner)
                     form(action="/mark-problem-solved", method="POST", style="display: inline;")
@@ -1004,10 +1188,10 @@ body
             .problem-card(style="text-align: center; padding: 2rem;")
               .problem-message No other problems reported yet.
 
-      // Raise Problem Section
+      // Raise Problem Section with Audio Recording
       .raise-problem-section
         .section-title Raise New Problem
-        form(action=`/com/${community.gp_id}/raise-problem`, method="POST")
+        form#raiseProblemForm(data-community-id=community.gp_id)
           .form-row
             .form-group
               label(for="category") Problem Category *
@@ -1034,6 +1218,39 @@ body
               name="remarks", 
               placeholder="Any additional information, location details, preferred time for service, etc..."
             )
+          
+          // Audio Recording Section
+          .form-group
+            label Audio Recording (Optional)
+            .audio-recording-container
+              .recording-controls
+                button.btn.btn-outline#startRecording(type="button")
+                  i.fas.fa-microphone
+                  | Start Recording
+                button.btn.btn-outline#stopRecording(type="button" style="display: none;")
+                  i.fas.fa-stop
+                  | Stop Recording
+                button.btn.btn-outline#cancelRecording(type="button" style="display: none;")
+                  i.fas.fa-times
+                  | Cancel
+              .recording-status#recordingStatus
+                .recording-indicator
+                  i.fas.fa-circle
+                  span Recording...
+                .recording-timer#recordingTimer 00:00
+              audio#audioPreview(controls style="display: none; margin-top: 10px; width: 100%;")
+              .recording-actions#recordingActions
+                button.btn.btn-success#saveRecording(type="button")
+                  i.fas.fa-save
+                  | Save Recording
+                button.btn.btn-outline#discardRecording(type="button")
+                  i.fas.fa-trash
+                  | Discard
+              
+              // Hidden inputs to store audio data
+              input(type="hidden" id="audioData" name="audio_data")
+              input(type="hidden" id="audioMimeType" name="audio_mimeType")
+          
           button.btn.btn-primary(type="submit")
             i.fas.fa-paper-plane
             | Submit Problem
@@ -1099,262 +1316,767 @@ body
       .footer-bottom
         p &copy; 2025 ProblemPad. All rights reserved. | Designed with ❤️ for better problem solving
 
-style.
-  /* Additional Styles for User Information Display */
-  .user-info-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
+  // Audio Recording JavaScript
+  script.
+    let mediaRecorder;
+    let audioChunks = [];
+    let recordingStartTime;
+    let timerInterval;
+    let isRecording = false;
+    let savedAudioBlob = null;
 
-  .user-main-info {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
+    // DOM Elements
+    const startBtn = document.getElementById('startRecording');
+    const stopBtn = document.getElementById('stopRecording');
+    const cancelBtn = document.getElementById('cancelRecording');
+    const recordingStatus = document.getElementById('recordingStatus');
+    const recordingTimer = document.getElementById('recordingTimer');
+    const audioPreview = document.getElementById('audioPreview');
+    const recordingActions = document.getElementById('recordingActions');
+    const saveBtn = document.getElementById('saveRecording');
+    const discardBtn = document.getElementById('discardRecording');
+    const audioDataInput = document.getElementById('audioData');
+    const audioMimeTypeInput = document.getElementById('audioMimeType');
+    const raiseProblemForm = document.getElementById('raiseProblemForm');
 
-  .user-name {
-    font-weight: 600;
-    color: var(--light);
-    font-size: 1.1rem;
-  }
+    // Initially hide recording status and actions
+    recordingStatus.style.display = 'none';
+    recordingActions.style.display = 'none';
 
-  .user-role-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    text-transform: capitalize;
-  }
-
-  .worker-badge {
-    background: var(--primary);
-    color: var(--light);
-  }
-
-  .user-badge {
-    background: var(--gray-dark);
-    color: var(--light);
-  }
-
-  .user-contact-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .contact-item {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--gray);
-    font-size: 0.9rem;
-  }
-
-  .contact-item i {
-    width: 16px;
-    color: var(--primary);
-  }
-
-  /* Problem Card Enhancements */
-  .problem-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--gray-dark);
-  }
-
-  .problem-user {
-    flex: 1;
-  }
-
-  .problem-status {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .status-solved {
-    background: rgba(16, 185, 129, 0.2);
-    color: #10b981;
-    border: 1px solid #10b981;
-  }
-
-  .status-waiting {
-    background: rgba(245, 158, 11, 0.2);
-    color: #f59e0b;
-    border: 1px solid #f59e0b;
-  }
-
-  .status-pending {
-    background: rgba(99, 102, 241, 0.2);
-    color: var(--primary);
-    border: 1px solid var(--primary);
-  }
-
-  @media (max-width: 768px) {
-    .problem-header {
-      flex-direction: column;
-      gap: 1rem;
-    }
-    
-    .problem-status {
-      align-self: flex-start;
-    }
-  }
-    script.
-      // User Details Popup
-      document.getElementById('userInfo').addEventListener('click', function(e) {
-        e.stopPropagation();
-        document.getElementById('userDetailsPopup').classList.toggle('active');
-      });
-
-      // Close popup when clicking outside
-      document.addEventListener('click', function() {
-        document.getElementById('userDetailsPopup').classList.remove('active');
-      });
-
-      // Notification System (Same as before but enhanced)
-      let notifications = [];
-
-      async function loadNotifications() {
-        try {
-          const response = await fetch('/notifications');
-          notifications = await response.json();
-          updateNotificationUI();
-        } catch (error) {
-          console.error('Failed to load notifications:', error);
-        }
+    // Start Recording
+    startBtn.addEventListener('click', async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            sampleRate: 16000
+          } 
+        });
+        
+        mediaRecorder = new MediaRecorder(stream, {
+          mimeType: 'audio/webm;codecs=opus'
+        });
+        
+        audioChunks = [];
+        
+        mediaRecorder.ondataavailable = (event) => {
+          if (event.data.size > 0) {
+            audioChunks.push(event.data);
+          }
+        };
+        
+        mediaRecorder.onstop = () => {
+          const audioBlob = new Blob(audioChunks, { 
+            type: mediaRecorder.mimeType 
+          });
+          
+          const audioUrl = URL.createObjectURL(audioBlob);
+          audioPreview.src = audioUrl;
+          audioPreview.style.display = 'block';
+          
+          // Store the blob for potential saving
+          savedAudioBlob = audioBlob;
+          
+          // Show recording actions
+          recordingActions.style.display = 'flex';
+          
+          // Update UI
+          stopBtn.style.display = 'none';
+          cancelBtn.style.display = 'none';
+          startBtn.style.display = 'block';
+          recordingStatus.style.display = 'none';
+          
+          // Stop all tracks
+          stream.getTracks().forEach(track => track.stop());
+        };
+        
+        // Start recording
+        mediaRecorder.start(100); // Collect data every 100ms
+        isRecording = true;
+        recordingStartTime = Date.now();
+        
+        // Start timer
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+        
+        // Update UI
+        startBtn.style.display = 'none';
+        stopBtn.style.display = 'inline-block';
+        cancelBtn.style.display = 'inline-block';
+        recordingStatus.style.display = 'flex';
+        recordingActions.style.display = 'none';
+        audioPreview.style.display = 'none';
+        
+      } catch (error) {
+        console.error('Error accessing microphone:', error);
+        alert('Could not access microphone. Please check permissions.');
       }
+    });
 
-      function updateNotificationUI() {
-        const notificationCount = document.getElementById('notificationCount');
-        const notificationList = document.getElementById('notificationList');
-        const unreadCount = notifications.filter(n => !n.read).length;
+    // Stop Recording
+    stopBtn.addEventListener('click', () => {
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        clearInterval(timerInterval);
+      }
+    });
 
-        notificationCount.textContent = unreadCount;
-        notificationCount.style.display = unreadCount > 0 ? 'flex' : 'none';
+    // Cancel Recording
+    cancelBtn.addEventListener('click', () => {
+      if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        clearInterval(timerInterval);
+        
+        // Reset UI
+        resetRecordingUI();
+      }
+    });
 
-        if (notifications.length === 0) {
-          notificationList.innerHTML = '<div class="notification-item"><div class="notification-message">No notifications</div></div>';
+    // Save Recording
+    saveBtn.addEventListener('click', async () => {
+      if (!savedAudioBlob) return;
+      
+      try {
+        // Convert blob to base64
+        const base64Data = await blobToBase64(savedAudioBlob);
+        
+        // Store in hidden inputs
+        audioDataInput.value = base64Data.split(',')[1]; // Remove data URL prefix
+        audioMimeTypeInput.value = savedAudioBlob.type;
+        
+        // Update UI to show recording is saved
+        saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved';
+        saveBtn.classList.remove('btn-success');
+        saveBtn.classList.add('btn-secondary');
+        saveBtn.disabled = true;
+        discardBtn.innerHTML = '<i class="fas fa-times"></i> Remove';
+        
+        console.log('Audio saved for submission');
+      } catch (error) {
+        console.error('Error saving audio:', error);
+        alert('Error saving audio recording.');
+      }
+    });
+
+    // Discard Recording
+    discardBtn.addEventListener('click', () => {
+      savedAudioBlob = null;
+      audioDataInput.value = '';
+      audioMimeTypeInput.value = '';
+      resetRecordingUI();
+    });
+
+    // Helper function to convert blob to base64
+    function blobToBase64(blob) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(blob);
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+      });
+    }
+
+    // Update timer display
+    function updateTimer() {
+      if (!recordingStartTime) return;
+      
+      const elapsed = Date.now() - recordingStartTime;
+      const minutes = Math.floor(elapsed / 60000);
+      const seconds = Math.floor((elapsed % 60000) / 1000);
+      
+      recordingTimer.textContent = 
+        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      
+      // Auto-stop after 5 minutes (300 seconds)
+      if (elapsed >= 300000) {
+        stopBtn.click();
+      }
+    }
+
+    // Reset recording UI
+    function resetRecordingUI() {
+      startBtn.style.display = 'block';
+      stopBtn.style.display = 'none';
+      cancelBtn.style.display = 'none';
+      recordingStatus.style.display = 'none';
+      recordingActions.style.display = 'none';
+      audioPreview.style.display = 'none';
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Recording';
+      saveBtn.classList.remove('btn-secondary');
+      saveBtn.classList.add('btn-success');
+      saveBtn.disabled = false;
+      discardBtn.innerHTML = '<i class="fas fa-trash"></i> Discard';
+      recordingTimer.textContent = '00:00';
+      savedAudioBlob = null;
+    }
+
+    // Function to play audio in problem cards
+    function playAudio(problemId) {
+      const container = document.getElementById(`audioContainer-${problemId}`);
+      const player = document.getElementById(`audioPlayer-${problemId}`);
+      
+      if (container.style.display === 'none') {
+        container.style.display = 'block';
+        player.play().catch(e => console.log('Autoplay prevented:', e));
+      } else {
+        container.style.display = 'none';
+        player.pause();
+        player.currentTime = 0;
+      }
+    }
+
+    // Form submission handler
+    raiseProblemForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const communityId = this.dataset.communityId;
+      const formData = new FormData(this);
+      const formProps = Object.fromEntries(formData);
+      
+      // Add audio data if available
+      if (audioDataInput.value) {
+        formProps.audio_data = audioDataInput.value;
+        formProps.audio_mimeType = audioMimeTypeInput.value;
+      }
+      
+      try {
+        const response = await fetch(`/com/${communityId}/raise-problem`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(formProps)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+          alert('Problem raised successfully!');
+          window.location.reload();
         } else {
-          notificationList.innerHTML = notifications.slice(0, 5).map(notification => `
-            <div class="notification-item ${notification.read ? '' : 'unread'}" data-id="${notification.id}">
-              <div class="notification-icon">
-                ${getNotificationIcon(notification.type)}
-              </div>
-              <div class="notification-content">
-                <div class="notification-message">${notification.message}</div>
-                <div class="notification-time">${formatTime(notification.timestamp)}</div>
-                <div class="notification-actions">
-                  ${!notification.read ? `<button class="btn btn-sm btn-outline mark-read" onclick="markNotificationRead('${notification.id}')">Mark Read</button>` : ''}
-                  ${notification.type === 'invitation' ? `<button class="btn btn-sm btn-primary" onclick="acceptInvitation('${notification.communityId}')">Accept</button>` : ''}
-                  ${notification.type === 'new_problem' && notification.communityId ? `<a href="/com/${notification.communityId}" class="btn btn-sm btn-outline">View</a>` : ''}
-                  ${notification.type === 'problem_solved' && notification.communityId ? `<a href="/com/${notification.communityId}" class="btn btn-sm btn-outline">Check Solution</a>` : ''}
-                </div>
+          alert('Error: ' + result.error);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to submit problem.');
+      }
+    });
+
+  script.
+    // User Details Popup
+    document.getElementById('userInfo').addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.getElementById('userDetailsPopup').classList.toggle('active');
+    });
+
+    // Close popup when clicking outside
+    document.addEventListener('click', function() {
+      document.getElementById('userDetailsPopup').classList.remove('active');
+    });
+
+    // Notification System
+    let notifications = [];
+
+    async function loadNotifications() {
+      try {
+        const response = await fetch('/notifications');
+        notifications = await response.json();
+        updateNotificationUI();
+      } catch (error) {
+        console.error('Failed to load notifications:', error);
+      }
+    }
+
+    function updateNotificationUI() {
+      const notificationCount = document.getElementById('notificationCount');
+      const notificationList = document.getElementById('notificationList');
+      const unreadCount = notifications.filter(n => !n.read).length;
+
+      notificationCount.textContent = unreadCount;
+      notificationCount.style.display = unreadCount > 0 ? 'flex' : 'none';
+
+      if (notifications.length === 0) {
+        notificationList.innerHTML = '<div class="notification-item"><div class="notification-message">No notifications</div></div>';
+      } else {
+        notificationList.innerHTML = notifications.slice(0, 5).map(notification => `
+          <div class="notification-item ${notification.read ? '' : 'unread'}" data-id="${notification.id}">
+            <div class="notification-icon">
+              ${getNotificationIcon(notification.type)}
+            </div>
+            <div class="notification-content">
+              <div class="notification-message">${notification.message}</div>
+              <div class="notification-time">${formatTime(notification.timestamp)}</div>
+              <div class="notification-actions">
+                ${!notification.read ? `<button class="btn btn-sm btn-outline mark-read" onclick="markNotificationRead('${notification.id}')">Mark Read</button>` : ''}
+                ${notification.type === 'invitation' ? `<button class="btn btn-sm btn-primary" onclick="acceptInvitation('${notification.communityId}')">Accept</button>` : ''}
+                ${notification.type === 'new_problem' && notification.communityId ? `<a href="/com/${notification.communityId}" class="btn btn-sm btn-outline">View</a>` : ''}
+                ${notification.type === 'problem_solved' && notification.communityId ? `<a href="/com/${notification.communityId}" class="btn btn-sm btn-outline">Check Solution</a>` : ''}
               </div>
             </div>
-          `).join('');
-        }
+          </div>
+        `).join('');
       }
+    }
 
-      function getNotificationIcon(type) {
-        const icons = {
-          'new_problem': '<i class="fas fa-exclamation-circle text-warning"></i>',
-          'problem_solved': '<i class="fas fa-check-circle text-success"></i>',
-          'solution_confirmed': '<i class="fas fa-thumbs-up text-info"></i>',
-          'invitation': '<i class="fas fa-user-plus text-primary"></i>',
-          'new_member': '<i class="fas fa-users text-info"></i>',
-          'general': '<i class="fas fa-bell text-gray"></i>'
-        };
-        return icons[type] || icons.general;
+    function getNotificationIcon(type) {
+      const icons = {
+        'new_problem': '<i class="fas fa-exclamation-circle text-warning"></i>',
+        'problem_solved': '<i class="fas fa-check-circle text-success"></i>',
+        'solution_confirmed': '<i class="fas fa-thumbs-up text-info"></i>',
+        'invitation': '<i class="fas fa-user-plus text-primary"></i>',
+        'new_member': '<i class="fas fa-users text-info"></i>',
+        'general': '<i class="fas fa-bell text-gray"></i>'
+      };
+      return icons[type] || icons.general;
+    }
+
+    function formatTime(timestamp) {
+      const now = new Date();
+      const time = new Date(timestamp);
+      const diff = now - time;
+      
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      
+      if (minutes < 1) return 'Just now';
+      if (minutes < 60) return `${minutes}m ago`;
+      if (hours < 24) return `${hours}h ago`;
+      if (days < 7) return `${days}d ago`;
+      
+      return time.toLocaleDateString();
+    }
+
+    async function markNotificationRead(notificationId) {
+      try {
+        await fetch('/mark-notification-read', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ notificationId })
+        });
+        await loadNotifications();
+      } catch (error) {
+        console.error('Failed to mark notification as read:', error);
       }
+    }
 
-      function formatTime(timestamp) {
-        const now = new Date();
-        const time = new Date(timestamp);
-        const diff = now - time;
-        
-        const minutes = Math.floor(diff / 60000);
-        const hours = Math.floor(diff / 3600000);
-        const days = Math.floor(diff / 86400000);
-        
-        if (minutes < 1) return 'Just now';
-        if (minutes < 60) return `${minutes}m ago`;
-        if (hours < 24) return `${hours}h ago`;
-        if (days < 7) return `${days}d ago`;
-        
-        return time.toLocaleDateString();
-      }
-
-      async function markNotificationRead(notificationId) {
-        try {
-          await fetch('/mark-notification-read', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ notificationId })
-          });
-          await loadNotifications();
-        } catch (error) {
-          console.error('Failed to mark notification as read:', error);
-        }
-      }
-
-      async function markAllNotificationsRead() {
-        try {
-          await fetch('/mark-all-notifications-read', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            }
-          });
-          await loadNotifications();
-        } catch (error) {
-          console.error('Failed to mark all notifications as read:', error);
-        }
-      }
-
-      async function acceptInvitation(communityId) {
-        try {
-          const response = await fetch(`/accept-invitation/${communityId}`, { method: 'POST' });
-          if (response.ok) {
-            await loadNotifications();
-            window.location.href = `/com/${communityId}`;
-          } else {
-            alert('Failed to accept invitation');
+    async function markAllNotificationsRead() {
+      try {
+        await fetch('/mark-all-notifications-read', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           }
-        } catch (error) {
-          console.error('Failed to accept invitation:', error);
+        });
+        await loadNotifications();
+      } catch (error) {
+        console.error('Failed to mark all notifications as read:', error);
+      }
+    }
+
+    async function acceptInvitation(communityId) {
+      try {
+        const response = await fetch(`/accept-invitation/${communityId}`, { method: 'POST' });
+        if (response.ok) {
+          await loadNotifications();
+          window.location.href = `/com/${communityId}`;
+        } else {
           alert('Failed to accept invitation');
         }
+      } catch (error) {
+        console.error('Failed to accept invitation:', error);
+        alert('Failed to accept invitation');
       }
+    }
 
-      // Notification dropdown toggle
-      document.getElementById('notificationBell').addEventListener('click', function(e) {
-        e.stopPropagation();
-        const dropdown = document.getElementById('notificationDropdown');
-        dropdown.classList.toggle('active');
-        if (dropdown.classList.contains('active')) {
-          loadNotifications();
+    // Notification dropdown toggle
+    document.getElementById('notificationBell').addEventListener('click', function(e) {
+      e.stopPropagation();
+      const dropdown = document.getElementById('notificationDropdown');
+      dropdown.classList.toggle('active');
+      if (dropdown.classList.contains('active')) {
+        loadNotifications();
+      }
+    });
+
+    document.getElementById('markAllRead').addEventListener('click', markAllNotificationsRead);
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function() {
+      document.getElementById('notificationDropdown').classList.remove('active');
+    });
+
+    // Auto-refresh notifications every 30 seconds
+    setInterval(loadNotifications, 30000);
+
+    // Load notifications on page load
+    document.addEventListener('DOMContentLoaded', loadNotifications);
+  script. 
+    // Test audio function
+    function testAudio(problemId) {
+      console.log(`Testing audio for problem: ${problemId}`);
+      
+      // Test the endpoint
+      fetch(`/problem-audio/${problemId}`)
+        .then(response => {
+          console.log('Response status:', response.status);
+          console.log('Content-Type:', response.headers.get('Content-Type'));
+          console.log('Content-Length:', response.headers.get('Content-Length'));
+          
+          if (response.ok) {
+            return response.blob();
+          } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+        })
+        .then(blob => {
+          console.log('Audio blob:', blob);
+          console.log('Blob size:', blob.size, 'bytes');
+          console.log('Blob type:', blob.type);
+          
+          if (blob.size === 0) {
+            alert('Audio blob is empty!');
+            return;
+          }
+          
+          // Create a test player
+          const audioUrl = URL.createObjectURL(blob);
+          const testPlayer = new Audio();
+          testPlayer.src = audioUrl;
+          
+          testPlayer.onloadeddata = () => {
+            console.log('Audio loaded successfully!');
+            console.log('Duration:', testPlayer.duration, 'seconds');
+            alert(`Audio loaded successfully! Duration: ${testPlayer.duration.toFixed(2)} seconds, Size: ${blob.size} bytes`);
+          };
+          
+          testPlayer.onerror = (e) => {
+            console.error('Audio error:', e);
+            alert('Error playing audio: ' + testPlayer.error.message);
+          };
+          
+          testPlayer.load();
+          
+          // Clean up after 30 seconds
+          setTimeout(() => {
+            URL.revokeObjectURL(audioUrl);
+          }, 30000);
+        })
+        .catch(error => {
+          console.error('Error fetching audio:', error);
+          alert('Error: ' + error.message);
+        });
+    }
+
+    // Enhanced playAudio function
+    function playAudio(problemId) {
+      console.log(`Attempting to play audio for problem: ${problemId}`);
+      
+      const container = document.getElementById(`audioContainer-${problemId}`);
+      const player = document.getElementById(`audioPlayer-${problemId}`);
+      const playBtn = document.querySelector(`button[onclick="playAudio('${problemId}')"]`);
+      const stopBtn = document.getElementById(`stopBtn-${problemId}`);
+      
+      // Show container
+      container.style.display = 'block';
+      
+      // Set source if not already set
+      if (!player.src || player.src === '') {
+        player.src = `/problem-audio/${problemId}`;
+        console.log('Set audio source to:', player.src);
+      }
+      
+      // Clear any previous error
+      player.onerror = null;
+      
+      // Set up error handler
+      player.onerror = function(e) {
+        console.error('Audio playback error:', e);
+        console.error('Error details:', player.error);
+        
+        let errorMsg = 'Unknown error';
+        switch(player.error.code) {
+          case MediaError.MEDIA_ERR_ABORTED:
+            errorMsg = 'Playback was aborted';
+            break;
+          case MediaError.MEDIA_ERR_NETWORK:
+            errorMsg = 'Network error';
+            break;
+          case MediaError.MEDIA_ERR_DECODE:
+            errorMsg = 'Decoding error - audio format not supported';
+            break;
+          case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+            errorMsg = 'Audio format not supported';
+            break;
+        }
+        
+        alert(`Cannot play audio: ${errorMsg}`);
+        
+        // Reset button states
+        if (playBtn) playBtn.style.display = 'inline-block';
+        if (stopBtn) stopBtn.style.display = 'none';
+      };
+      
+      // Set up loaded event
+      player.onloadeddata = function() {
+        console.log('Audio loaded, duration:', player.duration);
+        if (player.duration === Infinity || player.duration === 0) {
+          console.warn('Audio has invalid duration:', player.duration);
+        }
+      };
+      
+      // Set up ended event
+      player.onended = function() {
+        console.log('Audio ended');
+        if (playBtn) playBtn.style.display = 'inline-block';
+        if (stopBtn) stopBtn.style.display = 'none';
+      };
+      
+      // Try to play
+      player.play().then(() => {
+        console.log('Audio playback started successfully');
+        // Update button states
+        if (playBtn) playBtn.style.display = 'none';
+        if (stopBtn) stopBtn.style.display = 'inline-block';
+      }).catch(error => {
+        console.error('Play failed:', error);
+        
+        // Check if we need to load first
+        if (error.name === 'NotSupportedError' || error.name === 'NotAllowedError') {
+          // Try loading first, then playing
+          player.load();
+          setTimeout(() => {
+            player.play().catch(e => {
+              console.error('Retry also failed:', e);
+              alert(`Cannot play audio: ${e.message}`);
+            });
+          }, 100);
+        } else {
+          alert(`Cannot play audio: ${error.message}`);
         }
       });
+    }
 
-      document.getElementById('markAllRead').addEventListener('click', markAllNotificationsRead);
+    // Stop audio function
+    function stopAudio(problemId) {
+      const player = document.getElementById(`audioPlayer-${problemId}`);
+      const playBtn = document.querySelector(`button[onclick="playAudio('${problemId}')"]`);
+      const stopBtn = document.getElementById(`stopBtn-${problemId}`);
+      
+      if (player) {
+        player.pause();
+        player.currentTime = 0;
+        
+        // Update button states
+        if (playBtn) playBtn.style.display = 'inline-block';
+        if (stopBtn) stopBtn.style.display = 'none';
+      }
+    }
+script.
+  // Check for supported audio formats
+  function getSupportedMimeType() {
+    const types = [
+      'audio/mpeg',          // MP3
+      'audio/mp4',           // MP4/AAC
+      'audio/webm',          // WebM
+      'audio/ogg',           // OGG
+      'audio/wav',           // WAV
+      'audio/x-wav',         // WAV
+      'audio/mp3'            // MP3 alternative
+    ];
+    
+    for (let type of types) {
+      if (MediaRecorder.isTypeSupported(type)) {
+        console.log('Found supported MIME type:', type);
+        return type;
+      }
+    }
+    
+    // If none are explicitly supported, try these common ones
+    if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) {
+      return 'audio/webm;codecs=opus';
+    }
+    
+    if (MediaRecorder.isTypeSupported('audio/webm')) {
+      return 'audio/webm';
+    }
+    
+    // Default fallback - let browser choose
+    return 'audio/webm';
+  }
 
-      // Close dropdown when clicking outside
-      document.addEventListener('click', function() {
-        document.getElementById('notificationDropdown').classList.remove('active');
+  let mediaRecorder;
+  let audioChunks = [];
+  let recordingStartTime;
+  let timerInterval;
+  let isRecording = false;
+  let savedAudioBlob = null;
+  let currentMimeType = 'audio/mpeg'; // Default to MP3
+
+  // DOM Elements
+  const startBtn = document.getElementById('startRecording');
+  const stopBtn = document.getElementById('stopRecording');
+  const cancelBtn = document.getElementById('cancelRecording');
+  const recordingStatus = document.getElementById('recordingStatus');
+  const recordingTimer = document.getElementById('recordingTimer');
+  const audioPreview = document.getElementById('audioPreview');
+  const recordingActions = document.getElementById('recordingActions');
+  const saveBtn = document.getElementById('saveRecording');
+  const discardBtn = document.getElementById('discardRecording');
+  const audioDataInput = document.getElementById('audioData');
+  const audioMimeTypeInput = document.getElementById('audioMimeType');
+  const raiseProblemForm = document.getElementById('raiseProblemForm');
+
+  // Initially hide recording status and actions
+  recordingStatus.style.display = 'none';
+  recordingActions.style.display = 'none';
+
+  // Start Recording with supported format
+  startBtn.addEventListener('click', async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100 // Higher quality for MP3
+        } 
       });
+      
+      // Get supported MIME type
+      currentMimeType = getSupportedMimeType();
+      console.log('Using MIME type:', currentMimeType);
+      
+      // Try to create MediaRecorder with the supported type
+      let options = {};
+      if (currentMimeType) {
+        options.mimeType = currentMimeType;
+      }
+      
+      mediaRecorder = new MediaRecorder(stream, options);
+      
+      audioChunks = [];
+      
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          audioChunks.push(event.data);
+        }
+      };
+      
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunks, { 
+          type: mediaRecorder.mimeType || currentMimeType
+        });
+        
+        console.log('Audio recorded:', {
+          size: audioBlob.size,
+          type: audioBlob.type,
+          duration: recordingStartTime ? ((Date.now() - recordingStartTime) / 1000).toFixed(2) + 's' : 'unknown'
+        });
+        
+        const audioUrl = URL.createObjectURL(audioBlob);
+        audioPreview.src = audioUrl;
+        audioPreview.style.display = 'block';
+        
+        // Store the blob for potential saving
+        savedAudioBlob = audioBlob;
+        
+        // Show recording actions
+        recordingActions.style.display = 'flex';
+        
+        // Update UI
+        stopBtn.style.display = 'none';
+        cancelBtn.style.display = 'none';
+        startBtn.style.display = 'block';
+        recordingStatus.style.display = 'none';
+        
+        // Stop all tracks
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      // Start recording
+      mediaRecorder.start(100); // Collect data every 100ms
+      isRecording = true;
+      recordingStartTime = Date.now();
+      
+      // Start timer
+      updateTimer();
+      timerInterval = setInterval(updateTimer, 1000);
+      
+      // Update UI
+      startBtn.style.display = 'none';
+      stopBtn.style.display = 'inline-block';
+      cancelBtn.style.display = 'inline-block';
+      recordingStatus.style.display = 'flex';
+      recordingActions.style.display = 'none';
+      audioPreview.style.display = 'none';
+      
+    } catch (error) {
+      console.error('Error accessing microphone:', error);
+      
+      // Try with simpler constraints
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        alert('Microphone access granted. Please try recording again.');
+        stream.getTracks().forEach(track => track.stop());
+      } catch (simpleError) {
+        alert('Could not access microphone. Please check browser permissions and try again.');
+      }
+    }
+  });
 
-      // Auto-refresh notifications every 30 seconds
-      setInterval(loadNotifications, 30000);
-
-      // Load notifications on page load
-      document.addEventListener('DOMContentLoaded', loadNotifications);
+  // Save Recording - Convert to Base64
+  saveBtn.addEventListener('click', async () => {
+    if (!savedAudioBlob) return;
+    
+    try {
+      // Convert blob to base64
+      const base64Data = await blobToBase64(savedAudioBlob);
+      
+      // Store in hidden inputs
+      audioDataInput.value = base64Data.split(',')[1]; // Remove data URL prefix
+      audioMimeTypeInput.value = savedAudioBlob.type || currentMimeType;
+      
+      // Update UI to show recording is saved
+      saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved';
+      saveBtn.classList.remove('btn-success');
+      saveBtn.classList.add('btn-secondary');
+      saveBtn.disabled = true;
+      discardBtn.innerHTML = '<i class="fas fa-times"></i> Remove';
+      
+      console.log('Audio saved for submission:', {
+        size: savedAudioBlob.size,
+        type: savedAudioBlob.type,
+        base64Length: base64Data.length
+      });
+    } catch (error) {
+      console.error('Error saving audio:', error);
+      alert('Error saving audio recording.');
+    }
+  });
+  // Alternative: Encode as MP3 using lamejs
+  function encodeToMp3(audioBuffer) {
+    const mp3encoder = new lamejs.Mp3Encoder(1, 44100, 128); // mono, 44.1kHz, 128kbps
+    const samples = audioBuffer.getChannelData(0);
+    const mp3Data = [];
+    
+    const sampleBlockSize = 1152;
+    for (let i = 0; i < samples.length; i += sampleBlockSize) {
+      const sampleChunk = samples.subarray(i, i + sampleBlockSize);
+      const mp3buf = mp3encoder.encodeBuffer(sampleChunk);
+      if (mp3buf.length > 0) {
+        mp3Data.push(mp3buf);
+      }
+    }
+    
+    const mp3buf = mp3encoder.flush();
+    if (mp3buf.length > 0) {
+      mp3Data.push(mp3buf);
+    }
+    
+    return new Blob(mp3Data, { type: 'audio/mpeg' });
+  }

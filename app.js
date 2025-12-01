@@ -5,7 +5,9 @@ const io = require("socket.io")(http); // Initialize Socket.IO instance 📡
 
 const config = require("./config/config"); // Import config module ⚙️
 const router = require("./Routes/router"); // Import router module 🧭
+const startCleanupSchedule = require('./utils/cleanup');
 
+startCleanupSchedule.startCleanupSchedule();
 const PORT = config.port; // Get port from config 🚪
 
 const ConnectDB = async () => {
