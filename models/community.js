@@ -1,4 +1,3 @@
-// models/community.js - Update with these fields
 const mongoose = require("mongoose");
 
 const schema = new mongoose.Schema({

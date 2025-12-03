@@ -8,13 +8,13 @@ async function deleteOldProblems() {
     
     // Calculate date 30 days ago
     const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30); 
     
-    // Find and delete problems that were solved more than 30 days ago
+    // Find and delete old problems
     const result = await Problem.deleteMany({
-      solved: true,
-      confirmed_solved: true,
-      solved_at: { $lte: thirtyDaysAgo }
+      solved: true,                  // Only solved problems
+      confirmed_solved: true,       // And confirmed solved
+      solved_at: { $lte: thirtyDaysAgo } // Older than 30 days
     });
     
     console.log(`✅ Deleted ${result.deletedCount} old problems`);
@@ -32,11 +32,11 @@ function startCleanupSchedule() {
   
   cron.schedule('0 2 * * *', async () => {
     console.log('🕑 Running scheduled cleanup...');
-    await deleteOldProblems();
+    await deleteOldProblems();       // Run cleanup function
   });
   
   // Also run once on startup for testing
-  deleteOldProblems();
+  deleteOldProblems();              // Run on startup
 }
 
 module.exports = {

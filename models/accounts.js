@@ -1,4 +1,3 @@
-// In models/accounts.js, update the notification field:
 const mongoose = require("mongoose");
 
 const notificationSchema = new mongoose.Schema({

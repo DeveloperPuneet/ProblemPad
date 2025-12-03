@@ -1,7 +1,5 @@
 const app = require("express")(); // Initialize express app 🚀
 const mongoose = require("mongoose"); // Import mongoose library ✅
-const http = require("http").Server(app); // Create HTTP server instance 💻
-const io = require("socket.io")(http); // Initialize Socket.IO instance 📡
 
 const config = require("./config/config"); // Import config module ⚙️
 const router = require("./Routes/router"); // Import router module 🧭
@@ -25,10 +23,6 @@ const ConnectDB = async () => {
 ConnectDB(); // Call connect function 🔗
 
 app.use("/", router); // Use router middleware 🛣️
-io.on("connection", (socket) => { // Handle new socket connections 🔌
-    socket.on("disconnect", () => { // Handle disconnect events 🚪
-    });
-});
 
 http.listen(PORT, () => { // Start the server 🚀
     try {
