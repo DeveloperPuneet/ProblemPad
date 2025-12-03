@@ -7,9 +7,6 @@ const Accounts = require("../models/accounts");
 const Communities = require("../models/community");
 const Problems = require("../models/problem");
 
-// * importing files
-const config = require('../config/config'); // ⚙️ Configuration settings
-
 // * functions
 const Load = async (req, res) => { // ⏳ Asynchronous load function
     try {
