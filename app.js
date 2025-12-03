@@ -1,5 +1,6 @@
 const app = require("express")(); // Initialize express app 🚀
 const mongoose = require("mongoose"); // Import mongoose library ✅
+const http = require("http").Server(app) // Import http
 
 const config = require("./config/config"); // Import config module ⚙️
 const router = require("./Routes/router"); // Import router module 🧭
