@@ -1188,6 +1188,166 @@ body
             .problem-card(style="text-align: center; padding: 2rem;")
               .problem-message No other problems reported yet.
 
+        // Carpentry Problems
+        .category-section
+          .category-header
+            .category-icon
+              i.fas.fa-hammer
+            .category-title Carpentry Problems
+          if problems.filter(p => p.category === 'carpentry').length > 0
+            each problem in problems.filter(p => p.category === 'carpentry')
+              .problem-card(
+                class=problem.confirmed_solved ? 'solved' : problem.solved ? 'waiting-confirmation' : ''
+              )
+                .problem-header
+                  .problem-user
+                    each member in memberDetails
+                      if member.us_id === problem.us_id
+                        .user-info-container
+                          .user-main-info
+                            .user-name= member.Name
+                            .user-role-badge(class=member.role === 'worker' ? 'worker-badge' : 'user-badge')= member.role
+                          .user-contact-info
+                            .contact-item
+                              i.fas.fa-phone
+                              span= member.Mob_no
+                            if member.Address
+                              .contact-item
+                                i.fas.fa-map-marker-alt
+                                span= member.Address
+                  .problem-status(class=problem.confirmed_solved ? 'status-solved' : problem.solved ? 'status-waiting' : 'status-pending')
+                    = problem.confirmed_solved ? 'Confirmed Solved' : problem.solved ? 'Waiting Confirmation' : 'Pending'
+                .problem-message= problem.msg
+                .problem-details
+                  .detail-item
+                    .detail-label Category:
+                    .detail-value= problem.category
+                  if problem.remarks
+                    .detail-item
+                      .detail-label User Remarks:
+                      .detail-value= problem.remarks
+                  if problem.worker_remarks
+                    .worker-remarks
+                      strong Worker Remarks: 
+                      | #{problem.worker_remarks}
+                  // Audio Player Section
+                  if problem.has_audio
+                    .audio-player-section
+                      strong Audio Description: 
+                      button.btn.btn-sm.btn-outline(type="button" onclick=`playAudio('${problem.pb_id}')` style="margin-left: 10px;")
+                        i.fas.fa-play
+                        | Play Audio
+                      .audio-player-container(id=`audioContainer-${problem.pb_id}` style="margin-top: 10px; display: none;")
+                        audio(controls id=`audioPlayer-${problem.pb_id}` style="width: 100%;")
+                          source(src=`/problem-audio/${problem.pb_id}` type="audio/webm")
+                        p.small.text-muted(style="margin-top: 5px;") Click play to hear the audio description
+                .problem-actions
+                  if !problem.solved && (user.role === 'worker' || isOwner)
+                    form(action="/mark-problem-solved", method="POST", style="display: inline;")
+                      input(type="hidden", name="problemId", value=problem.pb_id)
+                      input(type="hidden", name="communityId", value=community.gp_id)
+                      .form-group
+                        label(for=`workerRemarks-${problem.pb_id}`) Your Remarks
+                        textarea(
+                          id=`workerRemarks-${problem.pb_id}`,
+                          name="worker_remarks",
+                          placeholder="Add your solution details...",
+                          required
+                        )
+                      button.btn.btn-success(type="submit")
+                        i.fas.fa-check
+                        | Mark Solved
+                  else if problem.solved && !problem.confirmed_solved && problem.us_id === user.us_id
+                    form(action="/confirm-solution", method="POST", style="display: inline;")
+                      input(type="hidden", name="problemId", value=problem.pb_id)
+                      input(type="hidden", name="communityId", value=community.gp_id)
+                      button.btn.btn-info(type="submit")
+                        i.fas.fa-thumbs-up
+                        | Confirm Solution
+          else
+            .problem-card(style="text-align: center; padding: 2rem;")
+              .problem-message No carpentry problems reported yet.
+
+        // Cleaning Problems
+        .category-section
+          .category-header
+            .category-icon
+              i.fas.fa-broom
+            .category-title Cleaning Problems
+          if problems.filter(p => p.category === 'cleaning').length > 0
+            each problem in problems.filter(p => p.category === 'cleaning')
+              .problem-card(
+                class=problem.confirmed_solved ? 'solved' : problem.solved ? 'waiting-confirmation' : ''
+              )
+                .problem-header
+                  .problem-user
+                    each member in memberDetails
+                      if member.us_id === problem.us_id
+                        .user-info-container
+                          .user-main-info
+                            .user-name= member.Name
+                            .user-role-badge(class=member.role === 'worker' ? 'worker-badge' : 'user-badge')= member.role
+                          .user-contact-info
+                            .contact-item
+                              i.fas.fa-phone
+                              span= member.Mob_no
+                            if member.Address
+                              .contact-item
+                                i.fas.fa-map-marker-alt
+                                span= member.Address
+                  .problem-status(class=problem.confirmed_solved ? 'status-solved' : problem.solved ? 'status-waiting' : 'status-pending')
+                    = problem.confirmed_solved ? 'Confirmed Solved' : problem.solved ? 'Waiting Confirmation' : 'Pending'
+                .problem-message= problem.msg
+                .problem-details
+                  .detail-item
+                    .detail-label Category:
+                    .detail-value= problem.category
+                  if problem.remarks
+                    .detail-item
+                      .detail-label User Remarks:
+                      .detail-value= problem.remarks
+                  if problem.worker_remarks
+                    .worker-remarks
+                      strong Worker Remarks: 
+                      | #{problem.worker_remarks}
+                  // Audio Player Section
+                  if problem.has_audio
+                    .audio-player-section
+                      strong Audio Description: 
+                      button.btn.btn-sm.btn-outline(type="button" onclick=`playAudio('${problem.pb_id}')` style="margin-left: 10px;")
+                        i.fas.fa-play
+                        | Play Audio
+                      .audio-player-container(id=`audioContainer-${problem.pb_id}` style="margin-top: 10px; display: none;")
+                        audio(controls id=`audioPlayer-${problem.pb_id}` style="width: 100%;")
+                          source(src=`/problem-audio/${problem.pb_id}` type="audio/webm")
+                        p.small.text-muted(style="margin-top: 5px;") Click play to hear the audio description
+                .problem-actions
+                  if !problem.solved && (user.role === 'worker' || isOwner)
+                    form(action="/mark-problem-solved", method="POST", style="display: inline;")
+                      input(type="hidden", name="problemId", value=problem.pb_id)
+                      input(type="hidden", name="communityId", value=community.gp_id)
+                      .form-group
+                        label(for=`workerRemarks-${problem.pb_id}`) Your Remarks
+                        textarea(
+                          id=`workerRemarks-${problem.pb_id}`,
+                          name="worker_remarks",
+                          placeholder="Add your solution details...",
+                          required
+                        )
+                      button.btn.btn-success(type="submit")
+                        i.fas.fa-check
+                        | Mark Solved
+                  else if problem.solved && !problem.confirmed_solved && problem.us_id === user.us_id
+                    form(action="/confirm-solution", method="POST", style="display: inline;")
+                      input(type="hidden", name="problemId", value=problem.pb_id)
+                      input(type="hidden", name="communityId", value=community.gp_id)
+                      button.btn.btn-info(type="submit")
+                        i.fas.fa-thumbs-up
+                        | Confirm Solution
+          else
+            .problem-card(style="text-align: center; padding: 2rem;")
+              .problem-message No cleaning problems reported yet.
+
       // Raise Problem Section with Audio Recording
       .raise-problem-section
         .section-title Raise New Problem
@@ -1273,6 +1433,67 @@ body
                 div 📱 #{member.Mob_no}
                 if member.Address
                   div 📍 #{member.Address}
+      
+      // Invite Members Section
+      if isOwner
+        .members-section(style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(16, 185, 129, 0.1)); border: 1px solid var(--primary);")
+          .section-title Invite New Members
+          .form-group
+            label(for="inviteMobileNumber") Mobile Number *
+            input(
+              type="tel",
+              id="inviteMobileNumber",
+              placeholder="Enter mobile number to invite (e.g., 9876543210)",
+              title="Please enter a valid mobile number"
+            )
+          button.btn.btn-primary#inviteBtn(type="button" onclick="inviteMember()")
+            i.fas.fa-paper-plane
+            | Send Invitation
+          #inviteMessage(style="margin-top: 1rem; padding: 1rem; border-radius: 8px; display: none;")
+      
+      // Plumber Panel - Show problems related to plumbing
+      if memberDetails.some(m => m.Proff && m.Proff.toLowerCase().includes('plumber'))
+        .category-section
+          .category-header
+            .category-icon
+              i.fas.fa-pipe
+            .category-title Plumber - Available Services
+          if memberDetails.filter(m => m.Proff && m.Proff.toLowerCase().includes('plumber')).length > 0
+            each member in memberDetails.filter(m => m.Proff && m.Proff.toLowerCase().includes('plumber'))
+              .member-card(style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(10, 162, 113, 0.1));")
+                .member-avatar(style="background: var(--secondary);")= member.Name.charAt(0).toUpperCase()
+                .member-name= member.Name
+                .member-details
+                  div
+                    strong Plumber
+                  div 📱 #{member.Mob_no}
+                  if member.Address
+                    div 📍 #{member.Address}
+          else
+            .problem-card(style="text-align: center; padding: 2rem;")
+              .problem-message No plumbers available in this community yet.
+      
+      // Carpentry Panel - Show problems related to carpentry  
+      if memberDetails.some(m => m.Proff && m.Proff.toLowerCase().includes('carpenter'))
+        .category-section
+          .category-header
+            .category-icon
+              i.fas.fa-hammer
+            .category-title Carpenter - Available Services
+          if memberDetails.filter(m => m.Proff && m.Proff.toLowerCase().includes('carpenter')).length > 0
+            each member in memberDetails.filter(m => m.Proff && m.Proff.toLowerCase().includes('carpenter'))
+              .member-card(style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));")
+                .member-avatar(style="background: var(--warning);")= member.Name.charAt(0).toUpperCase()
+                .member-name= member.Name
+                .member-details
+                  div
+                    strong Carpenter
+                  div 📱 #{member.Mob_no}
+                  if member.Address
+                    div 📍 #{member.Address}
+          else
+            .problem-card(style="text-align: center; padding: 2rem;")
+              .problem-message No carpenters available in this community yet.
 
   // Footer
   footer
@@ -1315,6 +1536,91 @@ body
               |  Punjab, India
       .footer-bottom
         p &copy; 2025 ProblemPad. All rights reserved. | Designed with ❤️ for better problem solving
+
+  // Invite Member Functions - Global Scope
+  script.
+    // Invite Member Function
+    function inviteMember() {
+      const mobileInput = document.getElementById('inviteMobileNumber');
+      const mobileNumber = mobileInput.value.trim();
+      const messageDiv = document.getElementById('inviteMessage');
+      const communityId = '#{community.gp_id}';
+      
+      if (!mobileNumber) {
+        showMessage(messageDiv, 'Please enter a mobile number', 'error');
+        return;
+      }
+      
+      // Check if mobile number is valid (at least 10 digits or more, numbers only)
+      if (!/^\d{10,}$/.test(mobileNumber.replace(/[-\s]/g, ''))) {
+        showMessage(messageDiv, 'Please enter a valid mobile number (10+ digits)', 'error');
+        return;
+      }
+      
+      try {
+        console.log('Inviting member with mobile:', mobileNumber, 'to community:', communityId);
+        
+        fetch(`/com/${communityId}/invite`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ mobileNumber: mobileNumber })
+        })
+        .then(response => response.json())
+        .then(result => {
+          console.log('Result:', result);
+          
+          if (result.success) {
+            showMessage(messageDiv, '✅ Invitation sent successfully!', 'success');
+            mobileInput.value = '';
+            setTimeout(() => {
+              messageDiv.style.display = 'none';
+            }, 4000);
+          } else {
+            showMessage(messageDiv, '❌ ' + (result.error || 'Failed to send invitation'), 'error');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          showMessage(messageDiv, '❌ Error sending invitation. Please try again.', 'error');
+        });
+      } catch (error) {
+        console.error('Error:', error);
+        showMessage(messageDiv, '❌ Error sending invitation. Please try again.', 'error');
+      }
+    }
+
+    // Helper function to display messages
+    function showMessage(element, message, type) {
+      element.textContent = message;
+      element.style.display = 'block';
+      element.style.background = type === 'success' 
+        ? 'rgba(16, 185, 129, 0.2)' 
+        : 'rgba(239, 68, 68, 0.2)';
+      element.style.borderLeft = type === 'success'
+        ? '3px solid var(--secondary)'
+        : '3px solid var(--error)';
+      element.style.color = type === 'success'
+        ? 'var(--secondary)'
+        : 'var(--error)';
+      element.style.padding = '1rem';
+      element.style.borderRadius = '8px';
+      element.style.marginTop = '1rem';
+    }
+
+    // Allow Enter key to submit invitation
+    document.addEventListener('DOMContentLoaded', function() {
+      const mobileInput = document.getElementById('inviteMobileNumber');
+      if (mobileInput) {
+        mobileInput.addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            inviteMember();
+          }
+        });
+      }
+    });
 
   // Audio Recording JavaScript
   script.
