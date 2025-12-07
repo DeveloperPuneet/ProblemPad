@@ -91,6 +91,7 @@ router.get('/discover', controller.discoverCommunities);
 router.post('/join-community/:id', controller.joinCommunityPublic);
 router.post('/com/:id/invite', controller.inviteMember);
 router.post('/accept-invitation/:id', controller.acceptInvitation);
+router.post('/com/:id/settings', auth.isLogin, controller.updateCommunitySettings);
 router.get('/notifications', controller.getNotifications);
 router.post('/mark-notification-read', controller.markNotificationRead);
 router.get('/notifications', controller.getNotifications);

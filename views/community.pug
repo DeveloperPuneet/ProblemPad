@@ -922,7 +922,7 @@ body
                           source(src=`/problem-audio/${problem.pb_id}` type="audio/webm")
                         p.small.text-muted(style="margin-top: 5px;") Click play to hear the audio description
                 .problem-actions
-                  if !problem.solved && (user.role === 'worker' || isOwner)
+                  if !problem.solved && (user.role === 'worker' || ((!community.settings || !community.settings.onlyWorkersCanSolve) && isOwner))
                     form(action="/mark-problem-solved", method="POST", style="display: inline;")
                       input(type="hidden", name="problemId", value=problem.pb_id)
                       input(type="hidden", name="communityId", value=community.gp_id)
@@ -1002,7 +1002,7 @@ body
                           source(src=`/problem-audio/${problem.pb_id}` type="audio/webm")
                         p.small.text-muted(style="margin-top: 5px;") Click play to hear the audio description
                 .problem-actions
-                  if !problem.solved && (user.role === 'worker' || isOwner)
+                  if !problem.solved && (user.role === 'worker' || ((!community.settings || !community.settings.onlyWorkersCanSolve) && isOwner))
                     form(action="/mark-problem-solved", method="POST", style="display: inline;")
                       input(type="hidden", name="problemId", value=problem.pb_id)
                       input(type="hidden", name="communityId", value=community.gp_id)
@@ -1082,7 +1082,7 @@ body
                           source(src=`/problem-audio/${problem.pb_id}` type="audio/webm")
                         p.small.text-muted(style="margin-top: 5px;") Click play to hear the audio description
                 .problem-actions
-                  if !problem.solved && (user.role === 'worker' || isOwner)
+                  if !problem.solved && (user.role === 'worker' || ((!community.settings || !community.settings.onlyWorkersCanSolve) && isOwner))
                     form(action="/mark-problem-solved", method="POST", style="display: inline;")
                       input(type="hidden", name="problemId", value=problem.pb_id)
                       input(type="hidden", name="communityId", value=community.gp_id)
@@ -1162,7 +1162,7 @@ body
                           source(src=`/problem-audio/${problem.pb_id}` type="audio/webm")
                         p.small.text-muted(style="margin-top: 5px;") Click play to hear the audio description
                 .problem-actions
-                  if !problem.solved && (user.role === 'worker' || isOwner)
+                  if !problem.solved && (user.role === 'worker' || ((!community.settings || !community.settings.onlyWorkersCanSolve) && isOwner))
                     form(action="/mark-problem-solved", method="POST", style="display: inline;")
                       input(type="hidden", name="problemId", value=problem.pb_id)
                       input(type="hidden", name="communityId", value=community.gp_id)
@@ -1242,7 +1242,7 @@ body
                           source(src=`/problem-audio/${problem.pb_id}` type="audio/webm")
                         p.small.text-muted(style="margin-top: 5px;") Click play to hear the audio description
                 .problem-actions
-                  if !problem.solved && (user.role === 'worker' || isOwner)
+                  if !problem.solved && (user.role === 'worker' || ((!community.settings || !community.settings.onlyWorkersCanSolve) && isOwner))
                     form(action="/mark-problem-solved", method="POST", style="display: inline;")
                       input(type="hidden", name="problemId", value=problem.pb_id)
                       input(type="hidden", name="communityId", value=community.gp_id)
@@ -1322,7 +1322,7 @@ body
                           source(src=`/problem-audio/${problem.pb_id}` type="audio/webm")
                         p.small.text-muted(style="margin-top: 5px;") Click play to hear the audio description
                 .problem-actions
-                  if !problem.solved && (user.role === 'worker' || isOwner)
+                  if !problem.solved && (user.role === 'worker' || ((!community.settings || !community.settings.onlyWorkersCanSolve) && isOwner))
                     form(action="/mark-problem-solved", method="POST", style="display: inline;")
                       input(type="hidden", name="problemId", value=problem.pb_id)
                       input(type="hidden", name="communityId", value=community.gp_id)
@@ -1450,6 +1450,26 @@ body
             i.fas.fa-paper-plane
             | Send Invitation
           #inviteMessage(style="margin-top: 1rem; padding: 1rem; border-radius: 8px; display: none;")
+
+        // Community Settings (Owner)
+        .members-section(style="margin-top: 1rem; border: 1px solid var(--gray-dark);")
+          .section-title Community Settings
+          form(action=`/com/${community.gp_id}/settings`, method="POST")
+            .form-group
+              label
+                input(type="checkbox", name="isPublic", value="true", checked=community.isPublic)
+                |  Public - Anyone can discover the community
+            .form-group
+              label
+                input(type="checkbox", name="allowPublicJoin", value="true", checked=(community.settings && community.settings.allowPublicJoin))
+                |  Allow public to join without invite
+            .form-group
+              label
+                input(type="checkbox", name="onlyWorkersCanSolve", value="true", checked=(community.settings && community.settings.onlyWorkersCanSolve))
+                |  Only workers can mark problems as solved
+            button.btn.btn-primary(type="submit")
+              i.fas.fa-save
+              | Save Settings
       
       // Plumber Panel - Show problems related to plumbing
       if memberDetails.some(m => m.Proff && m.Proff.toLowerCase().includes('plumber'))

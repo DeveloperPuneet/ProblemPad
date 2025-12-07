@@ -741,10 +741,13 @@ html(lang="en")
                       </div>
                     </div>
                     <div class="community-actions">
-                      <button class="btn btn-success btn-full join-community" data-community-id="${community.gp_id}">
-                        <i class="fas fa-plus"></i>
-                        Join Community
-                      </button>
+                      ${community.settings && community.settings.allowPublicJoin === false
+                        ? `<button class="btn btn-outline btn-full" disabled title="Invite-only community">Invite Only</button>`
+                        : `<button class="btn btn-success btn-full join-community" data-community-id="${community.gp_id}">
+                             <i class="fas fa-plus"></i>
+                             Join Community
+                           </button>`
+                      }
                     </div>
                   </div>
                 `).join('')}
@@ -810,7 +813,7 @@ html(lang="en")
               } else {
                 button.innerHTML = '<i class="fas fa-plus"></i> Join Community';
                 button.disabled = false;
-                alert('Error: ' + result.error);
+                alert(result.error);
               }
             } catch (error) {
               console.error('Join failed:', error);

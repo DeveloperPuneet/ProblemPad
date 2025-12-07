@@ -150,7 +150,13 @@ const createCommunity = async (req, res) => {
             Category: [category],
             members: [userId], // User becomes first member (owner)
             gp_id: gp_id,
-            Rating: 0
+            Rating: 0,
+            // Visibility settings
+            isPublic: visibility === 'public',
+            settings: {
+                allowPublicJoin: visibility === 'public',
+                onlyWorkersCanSolve: false
+            }
         });
 
         await newCommunity.save();
@@ -231,9 +237,20 @@ const joinCommunityPublic = async (req, res) => {
             return res.redirect('/discover?error=Community not found');
         }
 
-        // Add user to community
-        community.members.push(userId);
-        await community.save();
+        // Check visibility and public join setting
+        if (!community.isPublic) {
+            return res.redirect('/discover?error=Community is private');
+        }
+
+        if (community.settings && community.settings.allowPublicJoin === false) {
+            return res.redirect('/discover?This community is invite-only');
+        }
+
+        // Add user to community (avoid duplicates)
+        if (!community.members.includes(userId)) {
+            community.members.push(userId);
+            await community.save();
+        }
 
         res.redirect(`/com/${communityId}`);
     } catch (error) {
@@ -572,9 +589,16 @@ const markProblemSolved = async (req, res) => {
         const isWorker = user.role === 'worker';
         const isOwner = community.members.length > 0 && community.members[0] === userId;
 
-        // Only workers or owners can mark problems as solved
-        if (!isWorker && !isOwner) {
-            return res.status(403).json({ error: 'Only workers can mark problems as solved' });
+        // Enforce community setting: onlyWorkersCanSolve
+        if (community.settings && community.settings.onlyWorkersCanSolve) {
+            if (!isWorker) {
+                return res.status(403).json({ error: 'Only workers can mark problems as solved in this community' });
+            }
+        } else {
+            // default behavior: allow workers or owner
+            if (!isWorker && !isOwner) {
+                return res.status(403).json({ error: 'Only workers or owners can mark problems as solved' });
+            }
         }
 
         // Update problem with worker remarks and mark as solved
@@ -850,6 +874,15 @@ const joinCommunity = async (req, res) => {
             return res.status(404).json({ error: 'Community not found' });
         }
 
+        // Prevent joining private/invite-only communities
+        if (!community.isPublic) {
+            return res.status(403).json({ error: 'Community is private' });
+        }
+
+        if (community.settings && community.settings.allowPublicJoin === false) {
+            return res.status(403).json({ error: 'This community is invite-only' });
+        }
+
         // Check if user is already a member
         if (community.members.includes(userId)) {
             return res.status(400).json({ error: 'Already a member' });
@@ -901,6 +934,64 @@ const profileSettings = async (req, res) => {
         res.redirect('/dashboard?error=Failed to load profile');
     }
 }
+
+// Update community settings (owner only)
+const updateCommunitySettings = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const communityId = req.params.id;
+        const { isPublic, allowPublicJoin, onlyWorkersCanSolve } = req.body;
+
+        // Debug logging to help diagnose form submission issues
+        console.log('updateCommunitySettings called for', communityId, 'by user', userId);
+        console.log('Incoming form values -> isPublic:', isPublic, 'allowPublicJoin:', allowPublicJoin, 'onlyWorkersCanSolve:', onlyWorkersCanSolve);
+
+        if (!userId) return res.status(401).json({ error: 'Not authenticated' });
+
+        const community = await Communities.findOne({ gp_id: communityId });
+        if (!community) return res.status(404).json({ error: 'Community not found' });
+
+        // Only owner (first member) can update settings
+        const isOwner = community.members.length > 0 && community.members[0] === userId;
+        if (!isOwner) return res.status(403).json({ error: 'Only community owner can update settings' });
+
+        // Helper to coerce form values to boolean. Handles arrays (multiple values sent), 'on', 'true', '1', true, 'false'.
+        function parseBool(val) {
+            if (typeof val === 'undefined' || val === null) return undefined;
+            if (Array.isArray(val)) {
+                // Prefer the last occurrence (checkbox pattern: hidden then checkbox)
+                val = val[val.length - 1];
+            }
+            if (typeof val === 'boolean') return val;
+            const s = String(val).toLowerCase();
+            if (s === 'true' || s === '1' || s === 'on') return true;
+            if (s === 'false' || s === '0' || s === 'off') return false;
+            return undefined;
+        }
+
+        // Apply updates (coerce values)
+        const parsedIsPublic = parseBool(isPublic);
+        const parsedAllowPublicJoin = parseBool(allowPublicJoin);
+        const parsedOnlyWorkersCanSolve = parseBool(onlyWorkersCanSolve);
+
+        if (typeof parsedIsPublic !== 'undefined') community.isPublic = parsedIsPublic;
+        if (!community.settings) community.settings = {};
+        if (typeof parsedAllowPublicJoin !== 'undefined') community.settings.allowPublicJoin = parsedAllowPublicJoin;
+        if (typeof parsedOnlyWorkersCanSolve !== 'undefined') community.settings.onlyWorkersCanSolve = parsedOnlyWorkersCanSolve;
+
+        await community.save();
+
+        // If request is from a form submit, redirect back; else send JSON
+        if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+            return res.json({ success: true, message: 'Settings updated' });
+        }
+
+        res.redirect(`/com/${communityId}?success=Settings updated`);
+    } catch (error) {
+        console.log('Error updating settings:', error);
+        res.status(500).json({ error: 'Failed to update settings' });
+    }
+};
 
 // Update Profile
 const updateProfile = async (req, res) => {
@@ -1051,6 +1142,7 @@ module.exports = {
     discoverCommunities,
     searchCommunities,
     joinCommunity,
+    updateCommunitySettings,
     updateProfile,
     profileSettings,
     forgotPinPage,
