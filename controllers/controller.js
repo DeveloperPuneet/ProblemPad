@@ -570,6 +570,150 @@ const inviteMember = async (req, res) => {
     }
 };
 
+// Kick a member from community (owner only)
+const kickMember = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const communityId = req.params.id;
+        const { memberUsId } = req.body;
+
+        if (!userId) return res.status(401).json({ error: 'Not authenticated' });
+
+        const community = await Communities.findOne({ gp_id: communityId });
+        if (!community) return res.status(404).json({ error: 'Community not found' });
+
+        // Only owner (first member) can kick
+        const isOwner = community.members.length > 0 && community.members[0] === userId;
+        if (!isOwner) return res.status(403).json({ error: 'Only community owner can remove members' });
+
+        if (!memberUsId) return res.status(400).json({ error: 'Missing member id to remove' });
+
+        // Prevent kicking the owner or self
+        if (community.members[0] === memberUsId) return res.status(400).json({ error: 'Cannot remove community owner' });
+        if (memberUsId === userId) return res.status(400).json({ error: 'You cannot remove yourself from the community' });
+
+        // Remove member if present
+        const beforeCount = community.members.length;
+        community.members = community.members.filter(id => id !== memberUsId);
+        // Also remove from invitedMembers if present
+        if (community.invitedMembers && community.invitedMembers.length > 0) {
+            community.invitedMembers = community.invitedMembers.filter(id => id !== memberUsId);
+        }
+
+        if (community.members.length === beforeCount) {
+            return res.status(400).json({ error: 'Member not found in community' });
+        }
+
+        await community.save();
+
+        // Notify the kicked user
+        try {
+            await sendNotification([memberUsId], 'general', `You have been removed from community ${community.Name}`);
+        } catch (e) {
+            console.log('Failed to notify kicked user:', e);
+        }
+
+        return res.json({ success: true, message: 'Member removed' });
+    } catch (error) {
+        console.log('Error in kickMember:', error);
+        return res.status(500).json({ error: 'Failed to remove member' });
+    }
+};
+
+// Delete community (owner only)
+const deleteCommunity = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const communityId = req.params.id;
+
+        if (!userId) return res.status(401).json({ error: 'Not authenticated' });
+
+        const community = await Communities.findOne({ gp_id: communityId });
+        if (!community) return res.status(404).json({ error: 'Community not found' });
+
+        // Only owner (first member) can delete
+        const isOwner = community.members.length > 0 && community.members[0] === userId;
+        if (!isOwner) return res.status(403).json({ error: 'Only community owner can delete community' });
+
+        // Collect members for notification
+        const memberIds = Array.isArray(community.members) ? community.members.slice() : [];
+
+        // Delete problems belonging to community
+        await Problems.deleteMany({ com_id: communityId });
+
+        // Delete the community
+        await Communities.deleteOne({ gp_id: communityId });
+
+        // Notify members about deletion (best effort)
+        try {
+            if (memberIds.length > 0) {
+                await sendNotification(memberIds, 'general', `Community ${community.Name} has been deleted by the owner.`);
+            }
+        } catch (e) {
+            console.log('Failed to notify members of deletion:', e);
+        }
+
+        // If request is AJAX, return JSON; else redirect
+        if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+            return res.json({ success: true, message: 'Community deleted' });
+        }
+
+        return res.redirect('/dashboard?success=Community deleted');
+    } catch (error) {
+        console.log('Error in deleteCommunity:', error);
+        return res.status(500).json({ error: 'Failed to delete community' });
+    }
+};
+
+// Leave community (member can leave; owner cannot leave - must delete or transfer ownership)
+const leaveCommunity = async (req, res) => {
+    try {
+        const userId = req.session.user;
+        const communityId = req.params.id;
+
+        if (!userId) return res.status(401).json({ error: 'Not authenticated' });
+
+        const community = await Communities.findOne({ gp_id: communityId });
+        if (!community) return res.status(404).json({ error: 'Community not found' });
+
+        // If user is owner, prevent leaving (owner should delete or transfer)
+        if (community.members.length > 0 && community.members[0] === userId) {
+            return res.status(400).json({ error: 'Owner cannot leave the community. Delete or transfer ownership instead.' });
+        }
+
+        // Check membership
+        if (!community.members.includes(userId)) {
+            return res.status(400).json({ error: 'You are not a member of this community' });
+        }
+
+        // Remove user
+        community.members = community.members.filter(id => id !== userId);
+        await community.save();
+
+        // Notify owner that a member left
+        try {
+            console.log("here")
+            const ownerId = community.members.length > 0 ? community.members[0] : null;
+            if (ownerId && ownerId !== userId) {
+            console.log("here")
+                await sendNotification([ownerId], 'general', `${req.session.user} left the community ${community.Name}`);
+            }
+        } catch (e) {
+            console.log('Failed to notify owner about leave:', e);
+        }
+
+        // If AJAX, return JSON; else redirect
+        if (req.headers['content-type'] && req.headers['content-type'].includes('application/json')) {
+            return res.json({ success: true, message: 'Left community' });
+        }
+
+        return res.redirect('/dashboard?success=Left community');
+    } catch (error) {
+        console.log('Error in leaveCommunity:', error);
+        return res.status(500).json({ error: 'Failed to leave community' });
+    }
+};
+
 const markProblemSolved = async (req, res) => {
     try {
         const userId = req.session.user;
@@ -1132,6 +1276,8 @@ module.exports = {
     logout_user,
     inviteMember,
     acceptInvitation,
+    kickMember,
+    leaveCommunity,
     getNotifications,
     markNotificationRead,
     discoverCommunities,
@@ -1143,6 +1289,7 @@ module.exports = {
     searchCommunities,
     joinCommunity,
     updateCommunitySettings,
+    deleteCommunity,
     updateProfile,
     profileSettings,
     forgotPinPage,

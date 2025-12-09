@@ -1433,6 +1433,18 @@ body
                 div 📱 #{member.Mob_no}
                 if member.Address
                   div 📍 #{member.Address}
+                // Owner controls: kick member (hide for owner)
+                if isOwner && member.us_id !== community.members[0]
+                  .member-actions(style="margin-top: 0.75rem;")
+                    button.btn.btn-warning(type="button" onclick=`kickMember('${member.us_id}')`)
+                      i.fas.fa-user-times 
+                      | Kick member
+                // Allow the currently logged-in user to leave (if not owner)
+                if member.us_id === user.us_id && community.members[0] !== user.us_id
+                  .member-actions(style="margin-top: 0.75rem;")
+                    button.btn.btn-warning(type="button" onclick='leaveCommunity()')
+                      i.fas.fa-sign-out-alt
+                      | Leave Community
       
       // Invite Members Section
       if isOwner
@@ -1470,6 +1482,11 @@ body
             button.btn.btn-primary(type="submit")
               i.fas.fa-save
               | Save Settings
+            // Danger: Delete Community
+            if isOwner
+              button.btn.btn-danger(type="button" style="margin-left:10px;" onclick="deleteCommunity()")
+                i.fas.fa-trash
+                | Delete Community
       
       // Plumber Panel - Show problems related to plumbing
       if memberDetails.some(m => m.Proff && m.Proff.toLowerCase().includes('plumber'))
@@ -1582,6 +1599,7 @@ body
         
         fetch(`/com/${communityId}/invite`, {
           method: 'POST',
+          credentials: 'same-origin',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -1642,254 +1660,93 @@ body
       }
     });
 
-  // Audio Recording JavaScript
-  script.
-    let mediaRecorder;
-    let audioChunks = [];
-    let recordingStartTime;
-    let timerInterval;
-    let isRecording = false;
-    let savedAudioBlob = null;
+    // Kick member function (owner only)
+    function kickMember(memberUsId) {
+      const communityId = '#{community.gp_id}';
+      if (!confirm('Are you sure you want to remove this member from the community?')) return;
 
-    // DOM Elements
-    const startBtn = document.getElementById('startRecording');
-    const stopBtn = document.getElementById('stopRecording');
-    const cancelBtn = document.getElementById('cancelRecording');
-    const recordingStatus = document.getElementById('recordingStatus');
-    const recordingTimer = document.getElementById('recordingTimer');
-    const audioPreview = document.getElementById('audioPreview');
-    const recordingActions = document.getElementById('recordingActions');
-    const saveBtn = document.getElementById('saveRecording');
-    const discardBtn = document.getElementById('discardRecording');
-    const audioDataInput = document.getElementById('audioData');
-    const audioMimeTypeInput = document.getElementById('audioMimeType');
-    const raiseProblemForm = document.getElementById('raiseProblemForm');
-
-    // Initially hide recording status and actions
-    recordingStatus.style.display = 'none';
-    recordingActions.style.display = 'none';
-
-    // Start Recording
-    startBtn.addEventListener('click', async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            sampleRate: 16000
-          } 
-        });
-        
-        mediaRecorder = new MediaRecorder(stream, {
-          mimeType: 'audio/webm;codecs=opus'
-        });
-        
-        audioChunks = [];
-        
-        mediaRecorder.ondataavailable = (event) => {
-          if (event.data.size > 0) {
-            audioChunks.push(event.data);
-          }
-        };
-        
-        mediaRecorder.onstop = () => {
-          const audioBlob = new Blob(audioChunks, { 
-            type: mediaRecorder.mimeType 
-          });
-          
-          const audioUrl = URL.createObjectURL(audioBlob);
-          audioPreview.src = audioUrl;
-          audioPreview.style.display = 'block';
-          
-          // Store the blob for potential saving
-          savedAudioBlob = audioBlob;
-          
-          // Show recording actions
-          recordingActions.style.display = 'flex';
-          
-          // Update UI
-          stopBtn.style.display = 'none';
-          cancelBtn.style.display = 'none';
-          startBtn.style.display = 'block';
-          recordingStatus.style.display = 'none';
-          
-          // Stop all tracks
-          stream.getTracks().forEach(track => track.stop());
-        };
-        
-        // Start recording
-        mediaRecorder.start(100); // Collect data every 100ms
-        isRecording = true;
-        recordingStartTime = Date.now();
-        
-        // Start timer
-        updateTimer();
-        timerInterval = setInterval(updateTimer, 1000);
-        
-        // Update UI
-        startBtn.style.display = 'none';
-        stopBtn.style.display = 'inline-block';
-        cancelBtn.style.display = 'inline-block';
-        recordingStatus.style.display = 'flex';
-        recordingActions.style.display = 'none';
-        audioPreview.style.display = 'none';
-        
-      } catch (error) {
-        console.error('Error accessing microphone:', error);
-        alert('Could not access microphone. Please check permissions.');
-      }
-    });
-
-    // Stop Recording
-    stopBtn.addEventListener('click', () => {
-      if (mediaRecorder && isRecording) {
-        mediaRecorder.stop();
-        isRecording = false;
-        clearInterval(timerInterval);
-      }
-    });
-
-    // Cancel Recording
-    cancelBtn.addEventListener('click', () => {
-      if (mediaRecorder && isRecording) {
-        mediaRecorder.stop();
-        isRecording = false;
-        clearInterval(timerInterval);
-        
-        // Reset UI
-        resetRecordingUI();
-      }
-    });
-
-    // Save Recording
-    saveBtn.addEventListener('click', async () => {
-      if (!savedAudioBlob) return;
-      
-      try {
-        // Convert blob to base64
-        const base64Data = await blobToBase64(savedAudioBlob);
-        
-        // Store in hidden inputs
-        audioDataInput.value = base64Data.split(',')[1]; // Remove data URL prefix
-        audioMimeTypeInput.value = savedAudioBlob.type;
-        
-        // Update UI to show recording is saved
-        saveBtn.innerHTML = '<i class="fas fa-check"></i> Saved';
-        saveBtn.classList.remove('btn-success');
-        saveBtn.classList.add('btn-secondary');
-        saveBtn.disabled = true;
-        discardBtn.innerHTML = '<i class="fas fa-times"></i> Remove';
-        
-        console.log('Audio saved for submission');
-      } catch (error) {
-        console.error('Error saving audio:', error);
-        alert('Error saving audio recording.');
-      }
-    });
-
-    // Discard Recording
-    discardBtn.addEventListener('click', () => {
-      savedAudioBlob = null;
-      audioDataInput.value = '';
-      audioMimeTypeInput.value = '';
-      resetRecordingUI();
-    });
-
-    // Helper function to convert blob to base64
-    function blobToBase64(blob) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(blob);
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = reject;
+      fetch(`/com/${communityId}/kick`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberUsId: memberUsId })
+      })
+      .then(r => r.json())
+      .then(result => {
+        if (result.success) {
+          alert('Member removed successfully');
+          window.location.reload();
+        } else {
+          alert('Error: ' + (result.error || 'Failed to remove member'));
+        }
+      }).catch(err => {
+        console.error(err);
+        alert('Failed to remove member');
       });
     }
 
-    // Update timer display
-    function updateTimer() {
-      if (!recordingStartTime) return;
-      
-      const elapsed = Date.now() - recordingStartTime;
-      const minutes = Math.floor(elapsed / 60000);
-      const seconds = Math.floor((elapsed % 60000) / 1000);
-      
-      recordingTimer.textContent = 
-        `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-      
-      // Auto-stop after 5 minutes (300 seconds)
-      if (elapsed >= 300000) {
-        stopBtn.click();
-      }
-    }
+    // Delete community function (owner only)
+    function deleteCommunity() {
+      const communityId = '#{community.gp_id}';
+      if (!confirm('This will permanently delete the community and all its problems. Continue?')) return;
 
-    // Reset recording UI
-    function resetRecordingUI() {
-      startBtn.style.display = 'block';
-      stopBtn.style.display = 'none';
-      cancelBtn.style.display = 'none';
-      recordingStatus.style.display = 'none';
-      recordingActions.style.display = 'none';
-      audioPreview.style.display = 'none';
-      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Recording';
-      saveBtn.classList.remove('btn-secondary');
-      saveBtn.classList.add('btn-success');
-      saveBtn.disabled = false;
-      discardBtn.innerHTML = '<i class="fas fa-trash"></i> Discard';
-      recordingTimer.textContent = '00:00';
-      savedAudioBlob = null;
-    }
-
-    // Function to play audio in problem cards
-    function playAudio(problemId) {
-      const container = document.getElementById(`audioContainer-${problemId}`);
-      const player = document.getElementById(`audioPlayer-${problemId}`);
-      
-      if (container.style.display === 'none') {
-        container.style.display = 'block';
-        player.play().catch(e => console.log('Autoplay prevented:', e));
-      } else {
-        container.style.display = 'none';
-        player.pause();
-        player.currentTime = 0;
-      }
-    }
-
-    // Form submission handler
-    raiseProblemForm.addEventListener('submit', async function(e) {
-      e.preventDefault();
-      
-      const communityId = this.dataset.communityId;
-      const formData = new FormData(this);
-      const formProps = Object.fromEntries(formData);
-      
-      // Add audio data if available
-      if (audioDataInput.value) {
-        formProps.audio_data = audioDataInput.value;
-        formProps.audio_mimeType = audioMimeTypeInput.value;
-      }
-      
-      try {
-        const response = await fetch(`/com/${communityId}/raise-problem`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(formProps)
-        });
-        
-        const result = await response.json();
-        
+      fetch(`/com/${communityId}/delete`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(r => r.json())
+      .then(result => {
         if (result.success) {
-          alert('Problem raised successfully!');
-          window.location.reload();
+          alert('Community deleted');
+          window.location.href = '/dashboard';
         } else {
-          alert('Error: ' + result.error);
+          alert('Error: ' + (result.error || 'Failed to delete community'));
         }
-      } catch (error) {
-        console.error('Error:', error);
-        alert('Failed to submit problem.');
-      }
-    });
+      }).catch(err => {
+        console.error(err);
+        alert('Failed to delete community');
+      });
+    }
+
+    // Leave community (non-owner)
+    function leaveCommunity() {
+      const communityId = '#{community.gp_id}';
+      console.log(communityId)
+      if (!confirm('Are you sure you want to leave this community?')) return;
+
+      fetch(`/com/${communityId}/leave`, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' }
+      })
+      .then(async (r) => {
+        const ct = r.headers.get('content-type') || '';
+        if (!r.ok) {
+          const text = await r.text();
+          throw new Error(`Server ${r.status}: ${text}`);
+        }
+        // If server returned HTML (redirect to login/home), surface as error
+        if (!ct.includes('application/json')) {
+          const text = await r.text();
+          throw new Error(`Expected JSON but received: ${text}`);
+        }
+        return r.json();
+      })
+      .then(result => {
+        if (result && result.success) {
+          alert('You have left the community');
+          window.location.href = '/dashboard';
+        } else {
+          alert('Error: ' + (result && result.error ? result.error : 'Failed to leave'));
+        }
+      }).catch(err => {
+        console.error('Leave error:', err);
+        alert('Failed to leave community: ' + (err.message || err));
+      });
+    }
+
+
 
   script.
     // User Details Popup
@@ -1908,7 +1765,7 @@ body
 
     async function loadNotifications() {
       try {
-        const response = await fetch('/notifications');
+        const response = await fetch('/notifications', { credentials: 'same-origin' });
         notifications = await response.json();
         updateNotificationUI();
       } catch (error) {
@@ -1980,6 +1837,7 @@ body
       try {
         await fetch('/mark-notification-read', {
           method: 'POST',
+          credentials: 'same-origin',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -1995,6 +1853,7 @@ body
       try {
         await fetch('/mark-all-notifications-read', {
           method: 'POST',
+          credentials: 'same-origin',
           headers: {
             'Content-Type': 'application/json',
           }
@@ -2007,7 +1866,7 @@ body
 
     async function acceptInvitation(communityId) {
       try {
-        const response = await fetch(`/accept-invitation/${communityId}`, { method: 'POST' });
+        const response = await fetch(`/accept-invitation/${communityId}`, { method: 'POST', credentials: 'same-origin' });
         if (response.ok) {
           await loadNotifications();
           window.location.href = `/com/${communityId}`;
