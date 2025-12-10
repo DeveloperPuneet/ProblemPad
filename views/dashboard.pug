@@ -800,6 +800,17 @@ html(lang="en")
         }
       }
 
+      /* Slider styles */
+      .slider{position:relative;margin:1rem 0}
+      .slider-track{display:flex;gap:1rem;overflow-x:auto;padding:1rem 0;scroll-behavior:smooth}
+      .slide-card{min-width:260px;background:var(--darker);border:1px solid var(--gray-dark);padding:1rem;border-radius:10px;flex:0 0 auto}
+      .slider-prev,.slider-next{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,0.55);border:none;color:#fff;padding:0.5rem;border-radius:6px;cursor:pointer;z-index:5}
+      .slider-prev{left:0.5rem}
+      .slider-next{right:0.5rem}
+      .slide-link{color:var(--light);text-decoration:none;display:block}
+      .slide-title{font-weight:600;margin-bottom:0.5rem}
+      .slide-meta{color:var(--gray);font-size:0.85rem}
+
   body
     // Header
     header.dashboard-header
@@ -862,6 +873,57 @@ html(lang="en")
                 i.fas.fa-cog
               h3 Settings
               p Manage your account preferences
+
+          // Problems Sliders (Owner / Member)
+          section.slider-section
+            .section-header
+              .section-title Problems In Your Communities
+            if ownerProblems && ownerProblems.length > 0
+              .slider
+                button.slider-prev(type="button")
+                  i.fas.fa-chevron-left
+                .slider-track#ownerSlider
+                  each problem in ownerProblems
+                    .slide-card
+                      a.slide-link(href=`/com/${problem.com_id}`)
+                        .slide-title #{(problem.msg && problem.msg.length > 80) ? problem.msg.substring(0,80) + '...' : (problem.msg || 'Untitled problem')}
+                        .slide-meta
+                          span #{problem.category || 'general'}
+                          |  •  
+                          span #{problem.solved ? 'Solved' : 'Open'}
+                button.slider-next(type="button")
+                  i.fas.fa-chevron-right
+            else
+              .empty-state
+                .empty-icon
+                  i.fas.fa-list
+                h3 No Problems In Your Owned Communities
+                p There are no active problems raised in the communities you own.
+
+          section.slider-section
+            .section-header
+              .section-title Problems In Communities You Use
+            if memberProblems && memberProblems.length > 0
+              .slider
+                button.slider-prev(type="button")
+                  i.fas.fa-chevron-left
+                .slider-track#memberSlider
+                  each problem in memberProblems
+                    .slide-card
+                      a.slide-link(href=`/com/${problem.com_id}`)
+                        .slide-title #{(problem.msg && problem.msg.length > 80) ? problem.msg.substring(0,80) + '...' : (problem.msg || 'Untitled problem')}
+                        .slide-meta
+                          span #{problem.category || 'general'}
+                          |  •  
+                          span #{problem.solved ? 'Solved' : 'Open'}
+                button.slider-next(type="button")
+                  i.fas.fa-chevron-right
+            else
+              .empty-state
+                .empty-icon
+                  i.fas.fa-list
+                h3 No Problems Found
+                p There are no problems in communities you are a member of.
 
           // Your Communities Section
           section.communities-section
@@ -931,6 +993,8 @@ html(lang="en")
                   a.create-community-btn(href="/discover")
                     i.fas.fa-search
                     | Find Communities
+
+            
 
     // Create Community Modal
     .modal#createCommunityModal
@@ -1207,5 +1271,43 @@ html(lang="en")
       // Auto-refresh notifications every 30 seconds
       setInterval(loadNotifications, 30000);
 
-      // Load notifications on page load
-      document.addEventListener('DOMContentLoaded', loadNotifications);
+      // Slider initialization: prev/next and drag-to-scroll
+      function initSliders() {
+        document.querySelectorAll('.slider').forEach(slider => {
+          const track = slider.querySelector('.slider-track');
+          const prev = slider.querySelector('.slider-prev');
+          const next = slider.querySelector('.slider-next');
+          if (!track) return;
+
+          if (prev) prev.addEventListener('click', () => {
+            track.scrollBy({ left: -Math.round(track.clientWidth * 0.8), behavior: 'smooth' });
+          });
+          if (next) next.addEventListener('click', () => {
+            track.scrollBy({ left: Math.round(track.clientWidth * 0.8), behavior: 'smooth' });
+          });
+
+          // Mouse drag to scroll
+          let isDown = false, startX, scrollLeft;
+          track.addEventListener('mousedown', (e) => {
+            isDown = true;
+            track.classList.add('active');
+            startX = e.pageX - track.offsetLeft;
+            scrollLeft = track.scrollLeft;
+          });
+          track.addEventListener('mouseleave', () => { isDown = false; track.classList.remove('active'); });
+          track.addEventListener('mouseup', () => { isDown = false; track.classList.remove('active'); });
+          track.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - track.offsetLeft;
+            const walk = (x - startX) * 1; // scroll-fast factor
+            track.scrollLeft = scrollLeft - walk;
+          });
+        });
+      }
+
+      // Load notifications and initialize sliders on page load
+      document.addEventListener('DOMContentLoaded', () => {
+        loadNotifications();
+        initSliders();
+      });

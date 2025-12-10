@@ -1351,7 +1351,7 @@ body
       // Raise Problem Section with Audio Recording
       .raise-problem-section
         .section-title Raise New Problem
-        form#raiseProblemForm(data-community-id=community.gp_id)
+        form#raiseProblemForm(action=`/com/${community.gp_id}/raise-problem`, method="POST", data-community-id=community.gp_id)
           .form-row
             .form-group
               label(for="category") Problem Category *

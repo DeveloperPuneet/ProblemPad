@@ -76,10 +76,20 @@ const DashboardLoad = async (req, res) => {
             }
         }
 
+        // Prepare slider problem lists
+        const ownerGpIds = yourCommunities.map(c => c.gp_id);
+        const memberGpIds = communitiesYouUse.map(c => c.gp_id);
+
+        // Fetch recent problems for owner communities and member communities
+        const ownerProblems = ownerGpIds.length > 0 ? await Problems.find({ com_id: { $in: ownerGpIds } }).sort({ _id: -1 }).limit(50) : [];
+        const memberProblems = memberGpIds.length > 0 ? await Problems.find({ com_id: { $in: memberGpIds } }).sort({ _id: -1 }).limit(50) : [];
+
         res.render("dashboard", {
             user: user,
             yourCommunities: yourCommunities,
-            communitiesYouUse: communitiesYouUse
+            communitiesYouUse: communitiesYouUse,
+            ownerProblems: ownerProblems,
+            memberProblems: memberProblems
         });
 
     } catch (error) {
@@ -417,8 +427,11 @@ const raiseProblem = async (req, res) => {
 
         // Check if user is member of community
         const community = await Communities.findOne({ gp_id: communityId });
-        if (!community || !community.members.includes(userId)) {
-            return res.status(403).json({ error: 'Not a member of this community' });
+        if (!community) {
+            return res.redirect('/discover?error=Community not found');
+        }
+        if (!community.members.includes(userId)) {
+            return res.redirect(`/com/${communityId}?error=You must join the community to raise a problem`);
         }
 
         // Generate unique problem ID
@@ -495,16 +508,15 @@ const raiseProblem = async (req, res) => {
             );
         }
 
-        res.json({
-            success: true,
-            message: 'Problem raised successfully',
-            problemId: pb_id,
-            hasAudio: problemData.has_audio
-        });
+        return res.redirect(`/com/${communityId}?success=Problem raised successfully`);
 
     } catch (error) {
         console.log('Error raising problem:', error);
-        res.status(500).json({ error: 'Failed to raise problem' });
+        try {
+            return res.redirect(`/com/${req.params.id}?error=Failed to raise problem`);
+        } catch (e) {
+            return res.redirect('/dashboard?error=Failed to raise problem');
+        }
     }
 };
 
@@ -558,7 +570,7 @@ const inviteMember = async (req, res) => {
         await sendNotification(
             [userToInvite.us_id],
             'invitation',
-            `You've been invited to join ${community.Name}`,
+            `You have been invited to join ${community.Name}`,
             communityId
         );
 
@@ -695,7 +707,7 @@ const leaveCommunity = async (req, res) => {
             console.log("here")
             const ownerId = community.members.length > 0 ? community.members[0] : null;
             if (ownerId && ownerId !== userId) {
-            console.log("here")
+                console.log("here")
                 await sendNotification([ownerId], 'general', `${req.session.user} left the community ${community.Name}`);
             }
         } catch (e) {
@@ -751,7 +763,7 @@ const markProblemSolved = async (req, res) => {
             {
                 $set: {
                     solved: true,
-                    solved_at: new Date(), 
+                    solved_at: new Date(),
                     worker_remarks: worker_remarks || '',
                     solved_by: userId
                 }
@@ -874,7 +886,7 @@ const getNotifications = async (req, res) => {
 
     } catch (error) {
         console.log(error);
-        res.json([]);
+        res.status(500).json({ error: 'Failed to get notifications' });
     }
 };
 
