@@ -224,7 +224,9 @@ const getCommunityPage = async (req, res) => {
             problems: problems,
             memberDetails: memberDetails,
             isOwner: isOwner,
-            activeIssues: activeIssues
+            activeIssues: activeIssues,
+            success: req.query.success,
+            error: req.query.error
         });
 
     } catch (error) {

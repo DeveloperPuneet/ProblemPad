@@ -389,6 +389,29 @@ html(lang="en")
         background: rgba(99, 102, 241, 0.1); 
       }
 
+      /* Message Styles */
+      .message {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 500;
+      }
+
+      .message.success {
+        background: rgba(16, 185, 129, 0.1);
+        border-left: 4px solid var(--secondary);
+        color: var(--secondary);
+      }
+
+      .message.error {
+        background: rgba(239, 68, 68, 0.1);
+        border-left: 4px solid var(--error);
+        color: var(--error);
+      }
+
       /* Raise Problem Section */
       .raise-problem-section {
         background: var(--dark);
@@ -848,6 +871,15 @@ body
   // Main Content
   main.community-main
     .container
+      // Display success/error messages
+      if success
+        .message.success
+          i.fas.fa-check-circle
+          = success
+      if error
+        .message.error
+          i.fas.fa-exclamation-triangle
+          = error
       // Community Header
       .community-header
         h1= community.Name
@@ -1469,14 +1501,17 @@ body
           form(action=`/com/${community.gp_id}/settings`, method="POST")
             .form-group
               label
+                input(type="hidden", name="isPublic", value="false")
                 input(type="checkbox", name="isPublic", value="true", checked=community.isPublic)
                 |  Public - Anyone can discover the community
             .form-group
               label
+                input(type="hidden", name="allowPublicJoin", value="false")
                 input(type="checkbox", name="allowPublicJoin", value="true", checked=(community.settings && community.settings.allowPublicJoin))
                 |  Allow public to join without invite
             .form-group
               label
+                input(type="hidden", name="onlyWorkersCanSolve", value="false")
                 input(type="checkbox", name="onlyWorkersCanSolve", value="true", checked=(community.settings && community.settings.onlyWorkersCanSolve))
                 |  Only workers can mark problems as solved
             button.btn.btn-primary(type="submit")
@@ -2095,6 +2130,25 @@ script.
     return 'audio/webm';
   }
 
+  // Timer function for recording
+  function updateTimer() {
+    if (!recordingStartTime) return;
+    const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    recordingTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+
+  // Convert blob to base64
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
   let mediaRecorder;
   let audioChunks = [];
   let recordingStartTime;
@@ -2123,15 +2177,31 @@ script.
 
   // Start Recording with supported format
   startBtn.addEventListener('click', async () => {
+    let stream;
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
+      stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
           sampleRate: 44100 // Higher quality for MP3
         } 
       });
+    } catch (error) {
+      console.error('Error accessing microphone with advanced constraints:', error);
       
+      // Try with simpler constraints
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log('Microphone access granted with basic constraints');
+      } catch (simpleError) {
+        console.error('Error accessing microphone with basic constraints:', simpleError);
+        alert('Could not access microphone. Please check browser permissions and try again.');
+        return;
+      }
+    }
+    
+    // If we got here, we have a stream - proceed with recording
+    try {
       // Get supported MIME type
       currentMimeType = getSupportedMimeType();
       console.log('Using MIME type:', currentMimeType);
@@ -2200,18 +2270,64 @@ script.
       recordingActions.style.display = 'none';
       audioPreview.style.display = 'none';
       
-    } catch (error) {
-      console.error('Error accessing microphone:', error);
-      
-      // Try with simpler constraints
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        alert('Microphone access granted. Please try recording again.');
-        stream.getTracks().forEach(track => track.stop());
-      } catch (simpleError) {
-        alert('Could not access microphone. Please check browser permissions and try again.');
+    } catch (recordError) {
+      console.error('Error setting up recording:', recordError);
+      alert('Error setting up audio recording. Please try again.');
+      // Stop the stream if recording setup failed
+      stream.getTracks().forEach(track => track.stop());
+    }
+  });
+
+  // Stop Recording
+  stopBtn.addEventListener('click', () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      isRecording = false;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
       }
     }
+  });
+
+  // Cancel Recording
+  cancelBtn.addEventListener('click', () => {
+    if (mediaRecorder && isRecording) {
+      mediaRecorder.stop();
+      isRecording = false;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+    
+    // Reset UI
+    startBtn.style.display = 'block';
+    stopBtn.style.display = 'none';
+    cancelBtn.style.display = 'none';
+    recordingStatus.style.display = 'none';
+    recordingActions.style.display = 'none';
+    audioPreview.style.display = 'none';
+    
+    // Clear any saved audio
+    savedAudioBlob = null;
+    audioChunks = [];
+  });
+
+  // Discard Recording
+  discardBtn.addEventListener('click', () => {
+    savedAudioBlob = null;
+    audioDataInput.value = '';
+    audioMimeTypeInput.value = '';
+    
+    // Reset UI
+    recordingActions.style.display = 'none';
+    audioPreview.style.display = 'none';
+    saveBtn.innerHTML = '<i class="fas fa-save"></i> Save';
+    saveBtn.classList.remove('btn-secondary');
+    saveBtn.classList.add('btn-success');
+    saveBtn.disabled = false;
+    discardBtn.innerHTML = '<i class="fas fa-trash"></i> Discard';
   });
 
   // Save Recording - Convert to Base64

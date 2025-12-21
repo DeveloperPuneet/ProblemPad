@@ -30,8 +30,8 @@ sessionStore.on('error', (error) => {
 });
 
 // Middleware setup
-router.use(bodyParser.json()); // Parse JSON bodies
-router.use(bodyParser.urlencoded({ extended: true })); // Parse URL-encoded bodies
+router.use(bodyParser.json({ limit: '50mb' })); // Parse JSON bodies with 50MB limit
+router.use(bodyParser.urlencoded({ extended: true, limit: '50mb' })); // Parse URL-encoded bodies with 50MB limit
 router.use(express.static(path.join(__dirname, '../public'))); // Serve static files 📁
 
 // View engine setup
